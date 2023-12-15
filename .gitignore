@@ -1,4 +1,8 @@
 *.asv
 *.autosave
 *.slxc
-*/slprj/
+*.slx.r2015b
+*slprj/
+*__pycache__/
+*.png
+*.fig
