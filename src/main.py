@@ -25,7 +25,7 @@ converter = {
     'sqrt_custom': lambda x: x ** 0.5,
     'pow3': lambda x: x ** 3,
     'abs': lambda x: abs(x),
-    'sign': lambda x: -1 if x < 0 else 1
+    #'sign': lambda x: -1 if x < 0 else 1 cannot use conditions here
 }
 
 def main() -> None:
@@ -55,12 +55,12 @@ def main() -> None:
                         arity=1)
 
     est_gp = SymbolicRegressor(population_size=5000,
-                           generations=10, #number of generations for the symbolic regression learner
+                           generations=500, # 10 #number of generations for the symbolic regression learner
                            stopping_criteria=1e-5, #change this to improve fitness, adapt to assumed value range
                            p_crossover=0.7, p_subtree_mutation=0.1,
                            p_hoist_mutation=0.05, p_point_mutation=0.1,
                            max_samples=1.0, verbose=1,
-                           parsimony_coefficient= 1e-10, #"auto", 
+                           parsimony_coefficient= 1e-5, #"auto", 
                            #parsimony_coefficient=0, #gives the trade-off between length of the equation and the fitting value (0 = no restriction to length) 
                            random_state=0,
                            function_set=('sub','add','mul','abs','sqrt',mydiv,sign), #'div' might be crucial
