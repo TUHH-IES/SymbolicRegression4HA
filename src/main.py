@@ -28,23 +28,12 @@ converter = {
     #'sign': lambda x: -1 if x < 0 else 1 cannot use conditions here
 }
 
-def main() -> None:
-    # Ground truth
-    x0 = np.arange(-1, 1, .1)
-    x1 = np.arange(-1, 1, .1)
-    x0, x1 = np.meshgrid(x0, x1)
-    #y_truth = x0**2 - x1**2 + x1 - 1
+def calculate(mode) -> None:
 
     data_frame = pl.read_csv("examples/data_nonoise.csv")
 
     window = 370
-    # Training samples
-    X_train = data_frame[['mQp','y1','y2','Uo','h1','mQ0','mUb']].head(window) #'my1','my','vol1','vol2','mUb','mUp'= mAp saturated
-    # can I apply a normalization? -> this might not be conform with all of the operators...
-    y_train = data_frame['y1'].head(window)
-    y_train = np.diff(y_train)
-    y_train = np.insert(y_train, 0, y_train[0])
-    #y_train = (y_train-np.min(y_train))/(np.max(y_train)-np.min(y_train)) #normalize
+    data_frame = data_frame.head(window) #Features: 'mQp','y1','y2','Uo','h1','mQ0','mUb', 'my1','my','vol1','vol2','mUb','mUp'= mAp saturated
 
     #additional functions:
     mydiv = make_function(function=functionals._protected_division,
@@ -55,21 +44,40 @@ def main() -> None:
                         arity=1)
 
     est_gp = SymbolicRegressor(population_size=5000,
-                           generations=500, # 10 #number of generations for the symbolic regression learner
-                           stopping_criteria=1e-5, #change this to improve fitness, adapt to assumed value range
-                           p_crossover=0.7, p_subtree_mutation=0.1,
-                           p_hoist_mutation=0.05, p_point_mutation=0.1,
+                           p_crossover=0.5, p_subtree_mutation=0.2,
+                           p_hoist_mutation=0.05, p_point_mutation=0.2,
                            max_samples=1.0, verbose=1,
-                           parsimony_coefficient= 1e-5, #"auto", 
                            #parsimony_coefficient=0, #gives the trade-off between length of the equation and the fitting value (0 = no restriction to length) 
                            random_state=0,
                            function_set=('sub','add','mul','abs','sqrt',mydiv,sign), #'div' might be crucial
-                           feature_names=['mQp','y1','y2','Uo','h1','mQ0','mUb']
                            ) #'div', but that might not work good
-    est_gp.fit(X_train, y_train)
-    #final fitness (option: print score on training data)
-    print(est_gp._program.raw_fitness_)
+    
+    if mode == "standard-y1":
+        feature_names = ['mQp','y1','y2','h1','mUb']
+        est_gp.feature_names = feature_names
+        est_gp.stopping_criteria=1e-5
+        est_gp.generations=10
+        est_gp.parsimony_coefficient= 1e-5
+        X_train = data_frame[feature_names]
+        y_train = data_frame['y1']
+        y_train = np.diff(y_train)
+        y_train = np.insert(y_train, 0, y_train[0])
+        est_gp.fit(X_train, y_train)
+    elif mode == "subtract-mQp":
+        feature_names = ['y1','y2','h1','mUb']
+        est_gp.feature_names = feature_names
+        est_gp.stopping_criteria=1e-5
+        est_gp.generations=20
+        est_gp.parsimony_coefficient= 1e-3
+        X_train = data_frame[['y1','y2','h1','mUb']]
 
+        y_train = data_frame['y1']
+        y_train = np.diff(y_train)
+        y_train = np.insert(y_train, 0, y_train[0])
+        y_train = y_train - data_frame["mQp"]
+        est_gp.fit(X_train, y_train)
+
+    print(est_gp._program.raw_fitness_) #final fitness (option: print score on training data)
     #print(est_gp._program)
     label = f"{sympify(str(est_gp._program), locals=converter)}"
     label = simplify(label)
@@ -85,5 +93,28 @@ def main() -> None:
     plt.show()
     #print(score_gp)
 
+def plot_correct():
+
+    data_frame = pl.read_csv("examples/data_nonoise.csv")
+
+    window = 370
+    data_frame = data_frame.head(window)
+    Cvb = 1.5938*1e-4
+    A1 = 0.0154
+    calculated = (data_frame["mQp"] - Cvb * np.sign(data_frame["y1"] - data_frame["y2"])* np.sqrt(abs(data_frame["y1"]-data_frame["y2"]))*data_frame["mUb"]) / A1
+    y_train = data_frame['y1']
+    y_train = np.diff(y_train)
+    y_train = np.insert(y_train, 0, y_train[0])
+    y_train = y_train * (calculated[0] / y_train[0]) # coefficient needs to be added
+
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(y_train,label="gt")
+    ax.plot(calculated,label="calc")
+    ax.legend()
+    plt.show()
+
 if __name__ == "__main__":
-    main()
+    plot_correct()
+    #calculate("subtract-mQp")
+    
+
