@@ -30,7 +30,7 @@ converter = {
 
 def calculate(mode) -> None:
 
-    data_frame = pl.read_csv("examples/data_closedvalve.csv") #"examples/data_nonoise.csv"
+    data_frame = pl.read_csv("examples/data_onetank.csv") #"examples/data_nonoise.csv", "examples/data_closedvalve.csv"
 
     window = 370
     data_frame = data_frame.head(window) #Features two tank: 'mQp','y1','y2','Uo','h1','mQ0','mUb', 'my1','my','vol1','vol2','mUb','mUp'= mAp saturated
@@ -80,6 +80,20 @@ def calculate(mode) -> None:
         #factor = 649.4847596405152
         #y_train = y_train - (data_frame["mQp"] * factor) #why does subtraction not work? Why do I need some factor?
         est_gp.fit(X_train, y_train)
+    elif mode == "onetank": #todo: optimize to find equation 
+        feature_names = ['mQp','y1','mQ0']
+        est_gp.feature_names = feature_names
+        est_gp.function_set=('add','mul','sqrt',mydiv)
+        est_gp.stopping_criteria=1e-5
+        est_gp.generations=30
+        est_gp.parsimony_coefficient= 1e-5
+        X_train = data_frame[feature_names]
+        y_train = data_frame['y1']
+        y_train = np.diff(y_train)
+        y_train = np.insert(y_train, 0, y_train[0])
+        est_gp.fit(X_train, y_train)
+    else:
+        return
 
     print(est_gp._program.raw_fitness_) #final fitness (option: print score on training data)
     #print(est_gp._program)
@@ -120,6 +134,6 @@ def plot_correct():
 
 if __name__ == "__main__":
     #plot_correct()
-    calculate("standard-y1")
+    calculate("onetank")
     
 
