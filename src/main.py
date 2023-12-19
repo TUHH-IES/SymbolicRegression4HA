@@ -30,10 +30,10 @@ converter = {
 
 def calculate(mode) -> None:
 
-    data_frame = pl.read_csv("examples/data_nonoise.csv")
+    data_frame = pl.read_csv("examples/data_closedvalve.csv") #"examples/data_nonoise.csv"
 
     window = 370
-    data_frame = data_frame.head(window) #Features: 'mQp','y1','y2','Uo','h1','mQ0','mUb', 'my1','my','vol1','vol2','mUb','mUp'= mAp saturated
+    data_frame = data_frame.head(window) #Features two tank: 'mQp','y1','y2','Uo','h1','mQ0','mUb', 'my1','my','vol1','vol2','mUb','mUp'= mAp saturated
 
     #additional functions:
     mydiv = make_function(function=functionals._protected_division,
@@ -120,6 +120,6 @@ def plot_correct():
 
 if __name__ == "__main__":
     #plot_correct()
-    calculate("subtract-mQp")
+    calculate("standard-y1")
     
 
