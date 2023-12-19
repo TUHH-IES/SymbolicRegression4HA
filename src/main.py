@@ -21,7 +21,7 @@ converter = {
     'cos': lambda x: math.cos(x),
     'inv': lambda x: 1 / x,
     'inv_custom': lambda x: 1 / x,
-    'sqrt': lambda x: x ** 0.5,
+    'sqrt': lambda x: abs(x) ** 0.5,
     'sqrt_custom': lambda x: x ** 0.5,
     'pow3': lambda x: x ** 3,
     'abs': lambda x: abs(x),
@@ -64,17 +64,21 @@ def calculate(mode) -> None:
         y_train = np.insert(y_train, 0, y_train[0])
         est_gp.fit(X_train, y_train)
     elif mode == "subtract-mQp":
-        feature_names = ['y1','y2','h1','mUb']
+        feature_names = ['y1','y2','mUb']
         est_gp.feature_names = feature_names
         est_gp.stopping_criteria=1e-5
         est_gp.generations=20
         est_gp.parsimony_coefficient= 1e-3
-        X_train = data_frame[['y1','y2','h1','mUb']]
+        X_train = data_frame[feature_names]
 
-        y_train = data_frame['y1']
-        y_train = np.diff(y_train)
-        y_train = np.insert(y_train, 0, y_train[0])
-        y_train = y_train - data_frame["mQp"]
+        Cvb = 1.5938*1e-4
+        y_train = 1000* (Cvb * np.sign(data_frame["y1"] - data_frame["y2"])* np.sqrt(abs(data_frame["y1"]-data_frame["y2"]))*data_frame["mUb"])
+        # factor 1000 needed, because otherwise no convergence for very small values
+        #y_train = data_frame['y1']
+        #y_train = np.diff(y_train)
+        #y_train = np.insert(y_train, 0, y_train[0])
+        #factor = 649.4847596405152
+        #y_train = y_train - (data_frame["mQp"] * factor) #why does subtraction not work? Why do I need some factor?
         est_gp.fit(X_train, y_train)
 
     print(est_gp._program.raw_fitness_) #final fitness (option: print score on training data)
@@ -105,7 +109,8 @@ def plot_correct():
     y_train = data_frame['y1']
     y_train = np.diff(y_train)
     y_train = np.insert(y_train, 0, y_train[0])
-    y_train = y_train * (calculated[0] / y_train[0]) # coefficient needs to be added
+    #print(calculated[0] / y_train[0] / A1)
+    y_train = y_train * (calculated[0] / y_train[0]) # coefficient needs to be added --> Why?
 
     fig, ax = plt.subplots(1, 1)
     ax.plot(y_train,label="gt")
@@ -114,7 +119,7 @@ def plot_correct():
     plt.show()
 
 if __name__ == "__main__":
-    plot_correct()
-    #calculate("subtract-mQp")
+    #plot_correct()
+    calculate("subtract-mQp")
     
 
