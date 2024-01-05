@@ -1,0 +1,36 @@
+file: "examples/twotank/data_limited_noise.csv"
+features:
+  - mQp
+  - y1
+  - y2
+  - h1
+  - mUb
+window:
+  start: 0
+  length: 370
+
+kwargs:
+  population_size: 5000
+  stopping_criteria: 1e-5
+  generations: 10
+  parsimony_coefficient: 1e-5
+  p_crossover: 0.5
+  p_subtree_mutation: 0.2
+  p_hoist_mutation: 0.05
+  p_point_mutation: 0.2
+  max_samples: 1.0
+  verbose: 1
+  random_state: 0
+  
+function_set:
+  - sub
+  - add
+  - mul
+  - abs
+  - sqrt
+additional_functions:
+  - mydiv
+  - sign
+
+target_var: 'y1'
+target_manipulation: differentiate
