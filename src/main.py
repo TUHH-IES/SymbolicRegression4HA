@@ -21,6 +21,7 @@ def calculate(path) -> None:
     data_frame = data_frame.slice(window["start"],window["length"])
 
     est_gp = SymbolicRegressor(**config.get("kwargs", {}))
+    est_gp.feature_names = config["features"]
     function_set = tuple(config["function_set"])
     function_set = function_set + tuple([getattr(functionals, name) for name in config["additional_functions"]])
     est_gp.function_set = function_set
@@ -32,29 +33,12 @@ def calculate(path) -> None:
         y_train = np.diff(y_train)
         y_train = np.insert(y_train, 0, y_train[0])
         est_gp.fit(X_train, y_train)
-    elif config["target_manipulation"]  == "subtract-mQp": #TODO!
-        feature_names = ['y1','y2','mUb']
-        est_gp.feature_names = feature_names
-        est_gp.stopping_criteria=1e-5
-        est_gp.generations=20
-        est_gp.parsimony_coefficient= 1e-3
-        X_train = data_frame[feature_names]
-
+    elif config["target_manipulation"]  == "two-tank-subtract-dominant":
         Cvb = 1.5938*1e-4
         y_train = 1000* (Cvb * np.sign(data_frame["y1"] - data_frame["y2"])* np.sqrt(abs(data_frame["y1"]-data_frame["y2"]))*data_frame["mUb"])
         est_gp.fit(X_train, y_train)
-    elif config["target_manipulation"]  == "onetank": #TODO!
-        feature_names = ['mQp','y1','mQ0']
-        est_gp.feature_names = feature_names
-        #est_gp.function_set=('add','mul','sqrt',mydiv)
-        est_gp.stopping_criteria=1e-5
-        est_gp.generations=30
-        est_gp.parsimony_coefficient= 1e-5
-        X_train = data_frame[feature_names]
-        y_train = data_frame['y1']
-        y_train = np.diff(y_train)
-        y_train = np.insert(y_train, 0, y_train[0])
-        est_gp.fit(X_train, y_train)
+    else:
+        y_train = data_frame[config["target_var"]]
 
     print(est_gp._program.raw_fitness_) #final fitness (option: print score on training data)
     #print(est_gp._program) # prints raw program
