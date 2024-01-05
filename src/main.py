@@ -41,7 +41,6 @@ def calculate(path) -> None:
         y_train = data_frame[config["target_var"]]
 
     print(est_gp._program.raw_fitness_) #final fitness (option: print score on training data)
-    #print(est_gp._program) # prints raw program
     label = f"{sympify(str(est_gp._program), locals=functionals.converter)}"
     label = simplify(label)
     print(label)
