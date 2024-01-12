@@ -31,17 +31,20 @@ def calculate(path) -> None:
 
     X_train = data_frame[config["features"]]
     
-    if config["target_manipulation"] == "differentiate":
-        y_train = data_frame[config["target_var"]]
-        y_train = np.diff(y_train)
-        y_train = np.insert(y_train, 0, y_train[0])
-        est_gp.fit(X_train, y_train)
-    elif config["target_manipulation"]  == "two-tank-subtract-dominant":
-        Cvb = 1.5938*1e-4
-        y_train = 1000* (Cvb * np.sign(data_frame["y1"] - data_frame["y2"])* np.sqrt(abs(data_frame["y1"]-data_frame["y2"]))*data_frame["mUb"])
-        est_gp.fit(X_train, y_train)
+    if "target_manipulation" in config:
+        if config["target_manipulation"] == "differentiate":
+            y_train = data_frame[config["target_var"]]
+            y_train = np.diff(y_train)
+            y_train = np.insert(y_train, 0, y_train[0])
+        elif config["target_manipulation"]  == "two-tank-subtract-dominant":
+            Cvb = 1.5938*1e-4
+            y_train = 1000* (Cvb * np.sign(data_frame["y1"] - data_frame["y2"])* np.sqrt(abs(data_frame["y1"]-data_frame["y2"]))*data_frame["mUb"])
+        else:
+            y_train = data_frame[config["target_var"]]
     else:
         y_train = data_frame[config["target_var"]]
+
+    est_gp.fit(X_train, y_train)
 
     print(est_gp._program.raw_fitness_) #final fitness (option: print score on training data)
     label = f"{sympify(str(est_gp._program), locals=functionals.converter)}"
