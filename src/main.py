@@ -10,6 +10,7 @@ from sympy import sympify, simplify
 from gplearn.genetic import SymbolicRegressor
 
 import functionals
+import fitness
 
 def calculate(path) -> None:
 
@@ -25,6 +26,8 @@ def calculate(path) -> None:
     function_set = tuple(config["function_set"])
     function_set = function_set + tuple([getattr(functionals, name) for name in config["additional_functions"]])
     est_gp.function_set = function_set
+    if "custom_metric" in config:
+        est_gp.metric = getattr(fitness,config["custom_metric"])
 
     X_train = data_frame[config["features"]]
     
