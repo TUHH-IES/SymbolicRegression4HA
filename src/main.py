@@ -43,7 +43,8 @@ def calculate(path) -> None:
     else:
         y_train = data_frame[config["target_var"]]
 
-    est_gp.fit(X_train, y_train)
+    #sample_weights = np.concatenate((10*np.ones(50),np.ones(270),10*np.ones(50)))
+    est_gp.fit(X_train, y_train) #,sample_weight=sample_weights)
 
     print(est_gp._program.raw_fitness_) #final fitness (option: print score on training data)
     label = f"{sympify(str(est_gp._program), locals=functionals.converter)}"

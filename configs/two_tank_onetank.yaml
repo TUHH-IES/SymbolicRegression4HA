@@ -2,7 +2,6 @@ file: "examples/twotank/data_onetank.csv"
 features:
   - mQp
   - y1
-  - mQ0
 window:
   start: 0
   length: 370
