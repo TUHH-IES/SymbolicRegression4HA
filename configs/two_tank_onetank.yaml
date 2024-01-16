@@ -11,7 +11,7 @@ kwargs:
   population_size: 500
   stopping_criteria: 1e-5
   generations: 30
-  parsimony_coefficient: 1e-5
+  parsimony_coefficient: 0.5
   p_crossover: 0.3
   p_subtree_mutation: 0.2
   p_hoist_mutation: 0.05
@@ -26,6 +26,8 @@ function_set:
   - add
   - mul
   - abs
+  - sqrt
+  - sqrt
   - sqrt
 additional_functions:
   - mydiv

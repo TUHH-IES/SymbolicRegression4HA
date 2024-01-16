@@ -28,7 +28,7 @@ threshold_func = sys.float_info.min
 def _protected_division(x1, x2):
     """Closure of division (x1/x2) for zero denominator."""
     with np.errstate(divide='ignore', invalid='ignore'):
-        return np.where(np.abs(x2) > threshold_func, np.divide(x1, x2), 1.)
+        return np.array([np.divide(x1[i],x2[i]) if np.abs(x2[i]) > threshold_func else 1. for i in range(0,len(x1))])
 
 
 def _protected_sqrt(x1):
@@ -39,7 +39,7 @@ def _protected_sqrt(x1):
 def _protected_inverse(x1):
     """Closure of inverse for zero arguments."""
     with np.errstate(divide='ignore', invalid='ignore'):
-        return np.where(np.abs(x1) > threshold_func, 1. / x1, 0.)
+        return np.array([1 / x1[i] if np.abs(x1[i]) > threshold_func else 1. for i in range(0,len(x1))])
 
 
 def _sign(x): return np.sign(x)
