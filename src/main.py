@@ -12,6 +12,63 @@ from gplearn.genetic import SymbolicRegressor
 import functionals
 import fitness
 
+def identify_switch(path):
+    config = YAML(typ="safe").load(path)
+
+    data_frame = pl.read_csv(config["file"])
+
+    #todo: make these parameters part of the config or calculate from data length?
+    start_width = 50
+    step_width = 10
+    window = [0,start_width] #running index to capture the current window of data considered
+
+    threshold = 0.0005
+
+    #set up regressor
+    est_gp = SymbolicRegressor(**config.get("kwargs", {}))
+    est_gp.feature_names = config["features"]
+    function_set = tuple(config["function_set"])
+    function_set = function_set + tuple([getattr(functionals, name) for name in config["additional_functions"]])
+    est_gp.function_set = function_set
+    if "custom_metric" in config:
+        est_gp.metric = getattr(fitness,config["custom_metric"])
+
+    fitness = 100 #option: think about using best fitness seen here
+    new_fitness = 0
+    switches = [0]
+    while window[1] < len(data_frame):
+        est_gp.warm_start = False
+        while new_fitness - fitness < threshold and window[1] < len(data_frame): #if fitness gets worse (larger) by a specific degree; option: if fitness gets worse at all
+            print(window)
+            current_frame = data_frame.slice(window[0],window[1]) #todo: do I have to give all or for warm start just those that are new?
+            #option: think about giving more weight to new data points
+            fitness = new_fitness
+            #Assume for the moment that target is observed
+            X_train = current_frame[config["features"]]
+            y_train = current_frame[config["target_var"]]
+            est_gp.fit(X_train, y_train)
+            new_fitness = est_gp._program.raw_fitness_
+            window[1] += step_width
+            est_gp.warm_start = True
+            est_gp.generations += 3 # make this a parameter
+        #for output:
+        label = f"{sympify(str(est_gp._program), locals=functionals.converter)}"
+        label = simplify(label)
+        print(label)
+        switches.append(window[1])
+        window[0] = window[1]
+        window[1] += start_width
+        #reset fitness
+        fitness = 100 
+    new_fitness = 0
+
+    print(switches)
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(data_frame[config["target_var"]])
+    for x in switches:
+        plt.axvline(x = x,)
+    plt.show()
+
 def calculate(path) -> None:
 
     config = YAML(typ="safe").load(path)
@@ -69,5 +126,6 @@ if __name__ == "__main__":
     )
     arguments = parser.parse_args()
     calculate(arguments.config)
+    #identify_switch(arguments.config)
     
 
