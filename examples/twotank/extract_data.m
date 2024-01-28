@@ -1,64 +1,36 @@
-% For this script to run one needs to open the simulation window
-% and select a type of fault. Then run it once using the launch option
-% of the simulation window. Then change the fault_type paramater below
-% accordingly.
-
 % parameters
-pathB = '../../DS_8_var+residuals/';
-fault_type = 'T1_sensor_fault_not_0/';
+pathB = './19-01-2024/';
+example = 'single_tank';
+seed=randi(10000000);
+is_single = true;
+
+file = strcat(pathB, "/", example, '.csv');
+if ~exist(pathB, 'dir')
+    mkdir(pathB)
+end
+
+if is_single
+    header = {'mQp','Uo','my1','h1','mUp','mQ0','y1','vol1','dy','A1','Cvb','ysqrt'};
+else
+    header = {'mQp','mUb','Uo','my1','my','h1','mUp','mQ0','y1','vol1','y2','vol2','dy','A1','Cvb','sumsqrt'}; 
+end
+writecell(header,file)
 
 % for loop
 for iter = 1:100
     % run the simulation with random initialisation
-    fault_time=randi([0 200]);
-    seed=randi(10000000);
-    % variable fault intensity (only for T1, T2 leaks & T1 sensor not 0)
-    Qf1=5e-5*randn + 1e-4;
-    Qf2=5e-5*randn + 1e-4;
-    SensorT1Default = 0.1*randn + 0.7;
-    sim('CHEM_FULL_BENCHMARK_lmi.slx');
-    
-    % save the data in the correct folder
-    path = strcat(pathB, fault_type, num2str(iter), '/');
-    disp([num2str(iter) ' : ' num2str(fault_time) ' ; ' path])
-    if ~exist(path, 'dir')
-        mkdir(path)
+    run("INIT.m")
+    h1c_0=rand(1)/0.5;
+    h2c_0=rand(1)/0.5;
+    sim(strcat(example,'.slx'));
+   
+    Monit = [Monit, A1*ones(2000,1), Cvb*ones(2000,1)];
+    if is_single
+        %add square root of difference to data set
+        Monit = [Monit, sqrt(abs(Monit(:,7)))];
+    else
+        Monit = [Monit, sqrt(abs(Monit(:,9)-Monit(:,11)))]; 
     end
-    tmQp = transpose(mQp);
-    tmUb = transpose(mUb);
-    tmUp = transpose(mUp);
-    tmP1 = transpose(mP1);
-    tmP2 = transpose(mP2);
-    tmy1 = transpose(my1);
-    tmy2 = transpose(my2);
-    tmQo = transpose(mQo);
-    tR1 = transpose(R1);
-    tR2 = transpose(R2);
-    tR3 = transpose(R3);
-    tR4 = transpose(R4);
-    tR5 = transpose(R5);
-    tR6 = transpose(R6);
-    save(strcat(path, 'mQp'), 'tmQp');
-    save(strcat(path, 'mUb'),'tmUb');
-    save(strcat(path, 'mUp'),'tmUp');
-    save(strcat(path, 'my1'),'tmy1');
-    save(strcat(path, 'my2'),'tmy2');
-    save(strcat(path, 'mP1'),'tmP1');
-    save(strcat(path, 'mP2'),'tmP2');
-    save(strcat(path, 'mQo'),'tmQo');
-    save(strcat(path, 'R1'),'tR1');
-    save(strcat(path, 'R2'),'tR2');
-    save(strcat(path, 'R3'),'tR3');
-    save(strcat(path, 'R4'),'tR4');
-    save(strcat(path, 'R5'),'tR5');
-    save(strcat(path, 'R6'),'tR6');
-    file = fopen(strcat(path, 'fault_time.txt'), 'wt');
-    fprintf(file, '%i\n', fault_time);
-    fclose(file);
-    file = fopen(strcat(path, 'Qf1.txt'), 'wt');
-    fprintf(file, '%i\n', Qf1);
-    fclose(file);
-    file = fopen(strcat(path, 'Qf2.txt'), 'wt');
-    fprintf(file, '%i\n', Qf2);
-    fclose(file);
+    writematrix(Monit,file,'WriteMode','append');
+    clearvars -except pathB example seed is_single file
 end

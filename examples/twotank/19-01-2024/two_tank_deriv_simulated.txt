@@ -1,0 +1,2 @@
+-mUb*(mQp - 0.542)
+{"generation": [0], "average_length": [8.8236], "average_fitness": [0.5478834863923676], "best_length": [5], "best_fitness": [0.0], "best_oob_fitness": [NaN], "generation_time": [2.28851580619812]}

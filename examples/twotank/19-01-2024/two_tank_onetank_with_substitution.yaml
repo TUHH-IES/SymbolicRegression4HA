@@ -1,0 +1,31 @@
+file: "single_tank.csv"
+features:
+  - mQp
+  - y1
+  - A1
+  - Cvb
+  - ysqrt
+
+kwargs:
+  population_size: 500
+  stopping_criteria: 0.0
+  generations: 10000
+  parsimony_coefficient: 1
+  p_crossover: 0.3
+  p_subtree_mutation: 0.2
+  p_hoist_mutation: 0.05
+  p_point_mutation: 0.3
+  p_point_replace: 0.3
+  max_samples: 1.0
+  verbose: 1
+  random_state: 0
+  const_range: null
+  
+function_set:
+  - sub
+  - add
+  - mul
+additional_functions:
+  - mydiv
+
+target_var: 'dy'

@@ -1,0 +1,30 @@
+file: "two_tank_simple.csv"
+features:
+  - mQp
+  - y1
+  - y2
+  - h1
+  - mUb
+
+kwargs:
+  population_size: 5000
+  stopping_criteria: 0.0
+  generations: 10000
+  parsimony_coefficient: 1
+  p_crossover: 0.5
+  p_subtree_mutation: 0.2
+  p_hoist_mutation: 0.05
+  p_point_mutation: 0.2
+  max_samples: 1.0
+  verbose: 1
+  random_state: 42
+  
+function_set:
+  - sub
+  - mul
+  - abs
+  - sqrt
+additional_functions:
+  - sign
+
+target_var: 'dy'
