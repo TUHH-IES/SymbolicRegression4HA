@@ -1,0 +1,24 @@
+#dso only runs with older python (checked with 3.6.15), thus you need to do some steps for execution
+# use the virtualenv dsovenv
+# remove the inclusion of from pysr import PySRRegressor in main and symbolic_learner
+# remove the inclusion of from numpy.typing import NDArray in symbolic_learner and the type definitions of NDArrray
+# convert polars df y_train to numpy for the plot in the end of the main.calculate function
+
+file: "examples/twotank/data_withsubst.csv"
+json_path: "configs/dso_config.json"
+type: dso
+features:
+  - mQp
+  - mUb
+  - h1
+  - y1
+  - y2
+  - A1
+  - Cvb
+  - sumsqrt
+window:
+  start: 0
+  length: 370
+
+
+target_var: 'dy'

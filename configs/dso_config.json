@@ -1,0 +1,6 @@
+{
+    "task" : {
+      "task_type" : "regression",
+      "function_set" : ["add", "sub", "mul", "div"]
+    }
+}

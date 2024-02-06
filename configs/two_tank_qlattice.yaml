@@ -1,4 +1,5 @@
 file: "examples/twotank/data_withsubst.csv"
+type: qlattice
 features:
   - mQp
   - y1
@@ -12,13 +13,5 @@ window:
   start: 0
   length: 370
 
-kwargs:
-  binary_operators:
-    - "-"
-    - "+"
-    - "*"
-    - "/"
-  unary_operators:
-    - "sign"
-
 target_var: 'dy'
+

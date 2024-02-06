@@ -1,4 +1,5 @@
 file: "examples/twotank/data_withsubst.csv"
+type: PySR
 features:
   - mQp
   - y1
@@ -13,6 +14,7 @@ window:
   length: 370
 
 kwargs:
+  complexity_of_constants: 10
   binary_operators:
     - "-"
     - "+"
