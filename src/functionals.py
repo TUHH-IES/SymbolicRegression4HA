@@ -30,18 +30,6 @@ def _protected_division(x1, x2):
     with np.errstate(divide='ignore', invalid='ignore'):
         return np.array([np.divide(x1[i],x2[i]) if np.abs(x2[i]) > threshold_func else 1. for i in range(0,len(x1))])
 
-
-def _protected_sqrt(x1):
-    """Closure of square root for negative arguments."""
-    return np.sqrt(np.abs(x1))
-
-
-def _protected_inverse(x1):
-    """Closure of inverse for zero arguments."""
-    with np.errstate(divide='ignore', invalid='ignore'):
-        return np.array([1 / x1[i] if np.abs(x1[i]) > threshold_func else 1. for i in range(0,len(x1))])
-
-
 def _sign(x): return np.sign(x)
 
 #additional functions:
