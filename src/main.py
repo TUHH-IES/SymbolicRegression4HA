@@ -7,10 +7,10 @@ import numpy as np
 import polars as pl
 from sympy import sympify, simplify
 
-from gplearn.genetic import SymbolicRegressor
+from pysr import PySRRegressor
 
 import functionals
-import fitness
+from symbolic_learner import SymbolicLearner
 
 def identify_switch(path):
     config = YAML(typ="safe").load(path)
@@ -25,19 +25,19 @@ def identify_switch(path):
     threshold = 0.0005
 
     #set up regressor
-    est_gp = SymbolicRegressor(**config.get("kwargs", {}))
-    est_gp.feature_names = config["features"]
+    learner = PySRRegressor(**config.get("kwargs", {}))
+    learner.feature_names = config["features"]
     function_set = tuple(config["function_set"])
     function_set = function_set + tuple([getattr(functionals, name) for name in config["additional_functions"]])
-    est_gp.function_set = function_set
+    learner.function_set = function_set
     if "custom_metric" in config:
-        est_gp.metric = getattr(fitness,config["custom_metric"])
+        learner.metric = getattr(fitness,config["custom_metric"])
 
     fitness = 100 #option: think about using best fitness seen here
     new_fitness = 50
     switches = [0]
     while window[1] < len(data_frame):
-        est_gp.warm_start = False
+        learner.warm_start = False
         while new_fitness < fitness and window[1] < len(data_frame): #if fitness gets worse (larger) by a specific degree; option: if fitness gets worse at all
             print(window)
             current_frame = data_frame.slice(window[0],window[1]) #todo: do I have to give all or for warm start just those that are new?
@@ -46,13 +46,13 @@ def identify_switch(path):
             #Assume for the moment that target is observed
             X_train = current_frame[config["features"]]
             y_train = current_frame[config["target_var"]]
-            est_gp.fit(X_train, y_train)
-            new_fitness = est_gp._program.raw_fitness_
+            learner.fit(X_train, y_train)
+            new_fitness = learner._program.raw_fitness_
             window[1] += step_width
-            est_gp.warm_start = True
-            est_gp.generations += 3 # make this a parameter
+            learner.warm_start = True
+            learner.generations += 3 # make this a parameter
         #for output:
-        label = f"{sympify(str(est_gp._program), locals=functionals.converter)}"
+        label = f"{sympify(str(learner._program), locals=functionals.converter)}"
         label = simplify(label)
         print(label)
         switches.append(window[1])
@@ -61,7 +61,7 @@ def identify_switch(path):
         #reset fitness
         fitness = 100 
         new_fitness = 50
-        est_gp.generations = config["kwargs"]["generations"]
+        learner.generations = config["kwargs"]["generations"]
 
     print(switches)
     fig, ax = plt.subplots(1, 1)
@@ -79,16 +79,10 @@ def calculate(path) -> None:
     window = config["window"]
     data_frame = data_frame.slice(window["start"],window["length"])
 
-    est_gp = SymbolicRegressor(**config.get("kwargs", {}))
-    est_gp.feature_names = config["features"]
-    function_set = tuple(config["function_set"])
-    function_set = function_set + tuple([getattr(functionals, name) for name in config["additional_functions"]])
-    est_gp.function_set = function_set
-    if "custom_metric" in config:
-        est_gp.metric = getattr(fitness,config["custom_metric"])
+    learner = SymbolicLearner(config)
 
     X_train = data_frame[config["features"]]
-    
+
     if "target_manipulation" in config:
         if config["target_manipulation"] == "differentiate":
             y_train = data_frame[config["target_var"]]
@@ -102,20 +96,17 @@ def calculate(path) -> None:
         y_train = data_frame[config["target_var"]]
 
     #sample_weights = np.concatenate((10*np.ones(50),np.ones(270),10*np.ones(50)))
-    est_gp.fit(X_train, y_train) #,sample_weight=sample_weights)
+    learner.train(X_train, y_train) #,sample_weight=sample_weights)
+    
+    learner.print()
 
-    print(est_gp._program.raw_fitness_) #final fitness (option: print score on training data)
-    label = f"{sympify(str(est_gp._program), locals=functionals.converter)}"
-    label = simplify(label)
-    print(label)
-
-    y_gp = est_gp.predict(X_train)
+    y_gp = learner.predict(X_train)
 
     fig, ax = plt.subplots(1, 1)
-    ax.plot(y_train,label="gt")
+    ax.plot(y_train.to_numpy(),label="gt")
     ax.plot(y_gp,label="gp")
     ax.legend()
-    plt.show()
+    plt.savefig("results.png") 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -126,7 +117,7 @@ if __name__ == "__main__":
         help="Path to config file",
     )
     arguments = parser.parse_args()
-    #calculate(arguments.config)
-    identify_switch(arguments.config)
+    calculate(arguments.config)
+    #identify_switch(arguments.config)
     
 
