@@ -1,0 +1,28 @@
+file: "data/twotank/data_withsubst.csv"
+features:
+  - mQp
+  - y1
+  - y2
+  - A1
+  - Cvb
+  - sumsqrt
+
+start_width: 50
+step_width: 10
+step_iterations: 5
+file_prefix: "test"
+hist_length: 5
+criterion: "strict_increase"
+
+kwargs:
+  niterations: 40
+  verbosity: 0
+  complexity_of_constants: 10
+  binary_operators:
+    - "-"
+    - "+"
+    - "*"
+    - "/"
+  unary_operators:
+
+target_var: 'dy'
