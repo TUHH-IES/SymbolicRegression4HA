@@ -6,6 +6,7 @@ from collections import deque
 import matplotlib.pyplot as plt
 import polars as pl
 import pandas as pd
+import copy
 
 from pysr import PySRRegressor
 
@@ -14,7 +15,7 @@ import criteria
 def identify_switch(path):
     config = YAML(typ="safe").load(path)
 
-    data_frame = pl.read_csv(config["file"])
+    data_frame = pl.read_csv(config["file"], dtypes = [pl.Float64] * len(config["features"]))
 
     #todo: add an 'auto'-option which estimates this from data
     start_width = config["start_width"]
@@ -55,7 +56,7 @@ def identify_switch(path):
 
         log = dict()
         log["extensions"] = extension
-        log["window"] = window
+        log["window"] = copy.deepcopy(window)
         log["equation"] = learner.sympy()
         log_list.append(log)
         switches.append(window[1] - step_width )
