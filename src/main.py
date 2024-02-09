@@ -42,7 +42,7 @@ def identify_switch(path):
             window[1] = min(window[1],len(data_frame))
 
             print(window)
-            current_frame = data_frame.slice(window[0],window[1])
+            current_frame = data_frame.slice(window[0],(window[1]-window[0]))
             
             X_train = current_frame[config["features"]]
             y_train = current_frame[config["target_var"]]

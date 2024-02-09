@@ -1,0 +1,26 @@
+file: "data/electricCircuit2/circuit_data.csv"
+features:
+  - U1
+  - U2
+  - U3
+  - R
+
+start_width: 300
+step_width: 100
+step_iterations: 5
+file_prefix: "circuit2"
+hist_length: 5
+criterion: "strict_increase"
+
+kwargs:
+  niterations: 40
+  verbosity: 0
+  complexity_of_constants: 10
+  binary_operators:
+    - "-"
+    - "+"
+    - "*"
+    - "/"
+  unary_operators:
+
+target_var: 'I1'
