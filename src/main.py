@@ -22,15 +22,14 @@ def identify_switch(path):
     step_width = config["step_width"]
     step_iterations = config["step_iterations"]
     hist_length = config["hist_length"]
-    criterion = getattr(criteria, config["criterion"])
+    criterion = getattr(criteria, config["criterion"]) #todo: implement more criteria and add parameters for criteria
 
-    #set up regressor
     learner = PySRRegressor(**config.get("kwargs", {}))
     learner.feature_names = config["features"]
 
     fitness_hist = deque([],hist_length)
     switches = [0]
-    window = [0,start_width-step_width] #running index to capture the current window of data considered
+    window = [0,start_width-step_width]
     log_list = []
     while window[1] < len(data_frame):
         learner.warm_start = False
@@ -46,10 +45,8 @@ def identify_switch(path):
             
             X_train = current_frame[config["features"]]
             y_train = current_frame[config["target_var"]]
-            #option: check fitness on new data first
-            #option: more weight to new data points
             learner.fit(X_train, y_train)
-            fitness_hist.append(learner.get_best()["loss"])
+            fitness_hist.append(learner.get_best()["loss"]) #todo: make criterion decidable
             learner.warm_start = True
             learner.niterations = step_iterations
             extension = extension + 1
