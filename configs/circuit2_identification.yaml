@@ -10,7 +10,7 @@ step_width: 100
 step_iterations: 5
 file_prefix: "circuit2"
 hist_length: 5
-criterion: "strict_increase"
+criterion: "strict_decrease_bounded"
 
 kwargs:
   niterations: 40

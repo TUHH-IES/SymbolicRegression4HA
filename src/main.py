@@ -49,7 +49,7 @@ def identify_switch(path):
             #option: check fitness on new data first
             #option: more weight to new data points
             learner.fit(X_train, y_train)
-            fitness_hist.append(learner.get_best()["score"])
+            fitness_hist.append(learner.get_best()["loss"])
             learner.warm_start = True
             learner.niterations = step_iterations
             extension = extension + 1
@@ -64,6 +64,7 @@ def identify_switch(path):
         window[1] = min(window[0] + start_width - step_width, len(data_frame))
         learner.niterations = config["kwargs"]["niterations"]
 
+    switches[-1] = len(data_frame)
     print(switches)
     df = pd.DataFrame.from_dict(log_list)
     df.to_csv("results.csv")
