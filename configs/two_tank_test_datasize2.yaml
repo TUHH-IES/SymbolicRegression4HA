@@ -1,0 +1,29 @@
+file: "data/twotank/data_withsubst.csv"
+type: PySR
+features:
+  - mQp
+  - y1
+  - y2
+  - h1
+  - mUb
+  - A1
+  - Cvb
+  - sumsqrt
+
+window: 10
+step: 10
+offset: 375
+stop: 434
+
+kwargs:
+  verbosity: 0
+  complexity_of_constants: 10
+  binary_operators:
+    - "-"
+    - "+"
+    - "*"
+    - "/"
+  unary_operators:
+    - "sign"
+
+target_var: 'dy'
