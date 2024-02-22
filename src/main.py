@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import polars as pl
 import pandas as pd
 import copy
+from functools import partial
 
 from pysr import PySRRegressor
 
@@ -22,7 +23,13 @@ def identify_switch(path):
     step_width = config["step_width"]
     step_iterations = config["step_iterations"]
     hist_length = config["hist_length"]
-    criterion = getattr(criteria, config["criterion"]) #todo: implement more criteria and add parameters for criteria
+    criterion = getattr(criteria, config["criterion"]["name"])
+    if "kwargs" in config["criterion"]:
+        criterion = partial(criterion,**config["criterion"]["kwargs"])
+    if "selection" in config:
+        selection = config["selection"]
+    else:
+        selection = "loss"
 
     learner = PySRRegressor(**config.get("kwargs", {}))
     learner.feature_names = config["features"]
@@ -48,7 +55,7 @@ def identify_switch(path):
             X_train = current_frame[config["features"]]
             y_train = current_frame[config["target_var"]]
             learner.fit(X_train, y_train)
-            fitness_hist.append(learner.get_best()["loss"]) #todo: make criterion decidable
+            fitness_hist.append(learner.get_best()[selection])
             learner.warm_start = True
             learner.niterations = step_iterations
             extension = extension + 1
@@ -66,7 +73,7 @@ def identify_switch(path):
 
     switches[-1] = len(data_frame)
     log_list[-1]["window"][1] = len(data_frame)
-    log_list[-1]["extension"] = log_list[-1]["extension"]+1
+    log_list[-1]["extensions"] = log_list[-1]["extensions"]+1
     print(switches)
     df = pd.DataFrame.from_dict(log_list)
     df.to_csv("results.csv")

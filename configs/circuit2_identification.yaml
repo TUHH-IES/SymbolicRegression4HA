@@ -10,7 +10,11 @@ step_width: 100
 step_iterations: 5
 file_prefix: "circuit2"
 hist_length: 5
-criterion: "strict_decrease_bounded"
+criterion: 
+  name: "decrease"
+  kwargs:
+    saturation: 1e-10
+    factor: 1
 
 kwargs:
   niterations: 40
