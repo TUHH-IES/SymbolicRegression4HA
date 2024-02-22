@@ -12,7 +12,7 @@ features:
 
 window: 10
 step: 10
-offset: 375
+offset: 374
 stop: 434
 
 kwargs:

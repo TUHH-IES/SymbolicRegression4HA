@@ -23,16 +23,16 @@ def calculate(path) -> None:
     results = []
     while (offset + window < stop):
         learner.equation_file = "./test_datasetsize/" + "win_" + str(offset) + "_" + str(window) + ".csv"
-        window = window + step
+        window = min(window + step, stop-offset)
         current_frame = data_frame.slice(offset,window)
 
         X_train = current_frame[config["features"]]
         y_train = current_frame[config["target_var"]]
         learner.fit(X_train, y_train)
-        results.append([window,learner.sympy()])
+        results.append([window,learner.sympy(),learner.get_best()["loss"],learner.get_best()["score"]])
 
     df = pd.DataFrame.from_dict(results)
-    df.to_csv("results_test_datasize3.csv")
+    df.to_csv("datasize2.csv")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

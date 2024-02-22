@@ -13,7 +13,7 @@ features:
 window: 10
 step: 10
 offset: 435
-stop: 500
+stop: 504
 
 kwargs:
   verbosity: 0
