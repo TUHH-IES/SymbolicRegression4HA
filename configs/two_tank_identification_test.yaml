@@ -12,12 +12,16 @@ step_width: 10
 step_iterations: 5
 file_prefix: "test"
 hist_length: 5
-criterion: "strict_increase"
+criterion: 
+  name: "decrease"
+  kwargs:
+    saturation: 1e-7
 
 kwargs:
   niterations: 40
   verbosity: 0
   complexity_of_constants: 10
+  parsimony: 1e-6
   binary_operators:
     - "-"
     - "+"

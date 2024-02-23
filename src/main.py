@@ -44,7 +44,7 @@ def identify_switch(path):
         extension = 0
         while len(fitness_hist) < 2 or (criterion(fitness_hist) and window[1] < len(data_frame)):
             learner.equation_file = "./equations/" + config["file_prefix"] + "_win" + str(len(switches)) + "_ext" + str(extension) + ".csv"
-            if hasattr(learner,'equations'): 
+            if hasattr(learner,'equations_'): 
                 best_equation = learner.sympy()
             window[1] += step_width
             window[1] = min(window[1],len(data_frame))
@@ -59,6 +59,10 @@ def identify_switch(path):
             learner.warm_start = True
             learner.niterations = step_iterations
             extension = extension + 1
+            log_best = []
+            log_best.append([window,learner.sympy(),learner.get_best()["loss"],learner.get_best()["score"]])
+            df_log = pd.DataFrame.from_dict(log_best)
+            df_log.to_csv("./equations/" + config["file_prefix"] + "_win" + str(len(switches)) + "_ext" + str(extension) + "_best.csv")
 
         log = dict()
         log["extensions"] = extension-1
