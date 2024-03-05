@@ -1,0 +1,32 @@
+file: "data/population/logistic_data.csv"
+type: PySR
+features:
+  - t
+  - K
+  - r_1
+  - r_2
+  - r_3
+  - P_0
+  - P_1
+  - P_2
+
+window: 100
+step: 100
+offset: 0
+stop: 10000
+
+kwargs:
+  niterations: 100
+  verbosity: 0
+  complexity_of_constants: 10
+  parsimony: 1e-6
+  binary_operators:
+    - "-"
+    - "+"
+    - "*"
+    - "/"
+  unary_operators:
+    - "exp"
+    - "neg"
+
+target_var: 'P'
