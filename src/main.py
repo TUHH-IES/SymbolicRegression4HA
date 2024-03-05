@@ -6,6 +6,7 @@ from collections import deque
 import matplotlib.pyplot as plt
 import polars as pl
 import pandas as pd
+import numpy as np
 import copy
 from functools import partial
 
@@ -30,6 +31,10 @@ def identify_switch(path):
         selection = config["selection"]
     else:
         selection = "loss"
+    if "derivative" in config and config["derivative"]:
+        data_frame = data_frame.with_columns(diff=pl.col(config["target_var"]).diff())
+        data_frame[0, "diff"] = data_frame["diff"][1] #how to handle first time step?
+        config["target_var"] = "diff"
 
     learner = PySRRegressor(**config.get("kwargs", {}))
     learner.feature_names = config["features"]

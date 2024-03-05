@@ -1,0 +1,32 @@
+file: "data/converter/short_data_converter_omega400e3_beta40e3_Q10_theta60.csv"
+features:
+  - t
+  - w1
+  - w2
+
+start_width: 50
+step_width: 10
+step_iterations: 5
+file_prefix: "population"
+hist_length: 5
+criterion: 
+  name: "decrease"
+  kwargs:
+    saturation: 1e-7
+
+kwargs:
+  niterations: 40
+  verbosity: 0
+  parsimony: 1e-6
+  binary_operators:
+    - "-"
+    - "+"
+    - "*"
+    - "/"
+  unary_operators:
+    - "sin"
+    - "cos"
+    - "sqrt"
+
+target_var: 'w2'
+derivative: true
