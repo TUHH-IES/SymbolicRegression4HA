@@ -17,6 +17,7 @@ criterion:
 kwargs:
   niterations: 40
   verbosity: 0
+  complexity_of_constants: 10
   parsimony: 1e-6
   binary_operators:
     - "-"
