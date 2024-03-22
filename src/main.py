@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import polars as pl
 import pandas as pd
 import copy
+import ast
 from functools import partial
 from statistics import mean
 
@@ -24,8 +25,6 @@ def identify_switch(config, data_frame):
     criterion = getattr(criteria, config["criterion"]["name"])
     if "kwargs" in config["criterion"]:
         criterion = partial(criterion, **config["criterion"]["kwargs"])
-    if "selection" not in config:
-        config["selection"] = "loss"
     selection = config["selection"]
 
     learner = PySRRegressor(**config.get("kwargs", {}))
@@ -124,24 +123,27 @@ def cluster_segments(segments, data_frame, config):
     # todo: think about using previous models as starting point
     cluster_win = []
 
-    for segment in segments:
+    for segment in segments.iter_rows(named=True):
         window = segment["window"]
+        print("Current window:", window)
         df_window = data_frame.slice(window[0], (window[1] - window[0]))
 
+        #todo: print logs to some dir
         learner = PySRRegressor(**config.get("kwargs", {}))
         learner.feature_names = config["features"]
         if not cluster_win:
             cluster_win.append([window])
             cluster_data = [df_window]
             cluster_loss = [[segment[config["selection"]]]]
-            X_train = window[config["features"]]
-            y_train = window[config["target_var"]]
+            X_train = df_window[config["features"]]
+            y_train = df_window[config["target_var"]]
             learner.fit(X_train, y_train)
             cluster_eq = [learner.sympy()]
             continue
         else:
             found_cluster = False
             for i, data in enumerate(cluster_data):
+                print("Current cluster",i,"of",len(cluster_win))
                 concatenation = pl.concat([data, df_window])
                 X_train = concatenation[config["features"]]
                 y_train = concatenation[config["target_var"]]
@@ -163,8 +165,8 @@ def cluster_segments(segments, data_frame, config):
                 cluster_win.append([window])
                 cluster_data.append(df_window)
                 cluster_loss.append([segment[config["selection"]]])
-                X_train = window[config["features"]]
-                y_train = window[config["target_var"]]
+                X_train = df_window[config["features"]]
+                y_train = df_window[config["target_var"]]
                 learner.fit(X_train, y_train)
                 cluster_eq.append(learner.sympy())
 
@@ -185,15 +187,21 @@ def main(path):
         ]  # how to handle first time step? -> weight to 0?
         config["target_var"] = "diff"
 
+    if "selection" not in config:
+        config["selection"] = "loss"
+
     # Segmentation
-    switches, results = identify_switch(config, data_frame)
-    results.to_csv("segmentation_results.csv")
-    print(switches)
-    visualize_switches(data_frame[config["target_var"]], switches)
+    #switches, results = identify_switch(config, data_frame)
+    #results.to_csv("segmentation_results.csv")
+    #print(switches)
+    #visualize_switches(data_frame[config["target_var"]], switches)
 
     # Clustering
     # optional: read previous results from file:
-    # results = pl.read_csv("segmentation_results.csv")
+    pandas_results = pd.read_csv("segmentation_results.csv")
+    pandas_results['window'] = pandas_results['window'].apply(lambda x: ast.literal_eval(x))
+    results = pl.DataFrame(pandas_results)
+
     cluster_segments(results, data_frame, config)
 
 
