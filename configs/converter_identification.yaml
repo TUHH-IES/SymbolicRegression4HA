@@ -1,12 +1,12 @@
-file: "data/converter/short_data_converter_omega400e3_beta40e3_Q10_theta60.csv"
+file: "data/converter/short_wto_zeros_data_converter_omega400e3_beta40e3_Q10_theta60.csv"
 features:
   - t
   - w1
   - w2
 
-start_width: 50
+start_width: 200
 step_width: 10
-step_iterations: 5
+step_iterations: 15
 file_prefix: "population"
 hist_length: 5
 criterion: 
@@ -17,7 +17,6 @@ criterion:
 kwargs:
   niterations: 40
   verbosity: 0
-  complexity_of_constants: 10
   parsimony: 1e-6
   binary_operators:
     - "-"
@@ -25,8 +24,6 @@ kwargs:
     - "*"
     - "/"
   unary_operators:
-    - "sin"
-    - "cos"
     - "sqrt"
 
 target_var: 'w2'
