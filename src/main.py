@@ -6,7 +6,6 @@ from collections import deque
 import matplotlib.pyplot as plt
 import polars as pl
 import pandas as pd
-import numpy as np
 import copy
 from functools import partial
 from statistics import mean
@@ -17,7 +16,6 @@ import criteria
 
 
 def identify_switch(config, data_frame):
-
     # todo: add an 'auto'-option which estimates this from data
     start_width = config["start_width"]
     step_width = config["step_width"]
@@ -26,7 +24,7 @@ def identify_switch(config, data_frame):
     criterion = getattr(criteria, config["criterion"]["name"])
     if "kwargs" in config["criterion"]:
         criterion = partial(criterion, **config["criterion"]["kwargs"])
-    if not "selection" in config:
+    if "selection" not in config:
         config["selection"] = "loss"
     selection = config["selection"]
 
@@ -114,12 +112,16 @@ def visualize_switches(data, switches):
         plt.axvline(x=x, color="red")
     plt.show()
 
+
 def cluster_criterion(cluster_loss, window_loss, concatenation_loss):
-    #todo: move this to a file, make this adaptable and provide different options
-    return concatenation_loss < 10*cluster_loss and concatenation_loss < 10*window_loss
+    # todo: move this to a file, make this adaptable and provide different options
+    return (
+        concatenation_loss < 10 * cluster_loss and concatenation_loss < 10 * window_loss
+    )
+
 
 def cluster_segments(segments, data_frame, config):
-    #todo: think about using previous models as starting point
+    # todo: think about using previous models as starting point
     cluster_win = []
 
     for segment in segments:
@@ -146,15 +148,17 @@ def cluster_segments(segments, data_frame, config):
                 learner.fit(X_train, y_train)
                 eq = learner.sympy()
                 loss = learner.get_best()[config["selection"]]
-                if cluster_criterion(mean(cluster_loss[i]),segment[config["selection"]],loss):
-                    #todo: export to update cluster function
+                if cluster_criterion(
+                    mean(cluster_loss[i]), segment[config["selection"]], loss
+                ):
+                    # todo: export to update cluster function
                     cluster_win[i].append(window)
-                    cluster_data[i] = pl.concat([data,df_window])
+                    cluster_data[i] = pl.concat([data, df_window])
                     cluster_loss[i].append(segment[config["selection"]])
                     cluster_eq[i] = eq
                     found_cluster = True
                     break
-            
+
             if not found_cluster:
                 cluster_win.append([window])
                 cluster_data.append(df_window)
@@ -163,7 +167,7 @@ def cluster_segments(segments, data_frame, config):
                 y_train = window[config["target_var"]]
                 learner.fit(X_train, y_train)
                 cluster_eq.append(learner.sympy())
-    
+
     print(cluster_win)
     print(cluster_eq)
     # todo: if neighbouring are one dynamic: combine them to one window?
@@ -176,7 +180,9 @@ def main(path):
     )
     if "derivative" in config and config["derivative"]:
         data_frame = data_frame.with_columns(diff=pl.col(config["target_var"]).diff())
-        data_frame[0, "diff"] = data_frame["diff"][1]  # how to handle first time step? -> weight to 0?
+        data_frame[0, "diff"] = data_frame["diff"][
+            1
+        ]  # how to handle first time step? -> weight to 0?
         config["target_var"] = "diff"
 
     # Segmentation
@@ -187,7 +193,7 @@ def main(path):
 
     # Clustering
     # optional: read previous results from file:
-    #results = pl.read_csv("segmentation_results.csv")
+    # results = pl.read_csv("segmentation_results.csv")
     cluster_segments(results, data_frame, config)
 
 
