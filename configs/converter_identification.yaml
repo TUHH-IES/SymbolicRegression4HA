@@ -4,20 +4,21 @@ features:
   - w1
   - w2
 
-start_width: 200
+start_width: 100
 step_width: 10
 step_iterations: 15
-file_prefix: "population"
+file_prefix: "cluster"
 hist_length: 5
 criterion: 
   name: "decrease"
   kwargs:
     saturation: 1e-7
+cluster_criterion:
+  factor: 5
 
 kwargs:
   niterations: 40
   verbosity: 0
-  parsimony: 1e-6
   binary_operators:
     - "-"
     - "+"

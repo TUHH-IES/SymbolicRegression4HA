@@ -100,7 +100,7 @@ def identify_switch(config, data_frame):
     switches[-1] = len(data_frame)
     log_list[-1]["window"][1] = len(data_frame)
     log_list[-1]["extensions"] = log_list[-1]["extensions"] + 1
-    df = pd.DataFrame.from_dict(log_list)
+    df = pl.DataFrame.from_dict(log_list)
     return switches, df
 
 
@@ -112,24 +112,27 @@ def visualize_switches(data, switches):
     plt.show()
 
 
-def cluster_criterion(cluster_loss, window_loss, concatenation_loss):
+def cluster_criterion(cluster_loss, window_loss, concatenation_loss, factor):
     # todo: move this to a file, make this adaptable and provide different options
+    print("Cluster criterion", concatenation_loss, cluster_loss, window_loss)
     return (
-        concatenation_loss < 10 * cluster_loss and concatenation_loss < 10 * window_loss
+        concatenation_loss < factor * cluster_loss and concatenation_loss < factor * window_loss
     )
 
 
 def cluster_segments(segments, data_frame, config):
     # todo: think about using previous models as starting point
     cluster_win = []
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(data_frame["t"],data_frame[config["target_var"]],label = "gt")
 
     for segment in segments.iter_rows(named=True):
         window = segment["window"]
         print("Current window:", window)
         df_window = data_frame.slice(window[0], (window[1] - window[0]))
 
-        #todo: print logs to some dir
         learner = PySRRegressor(**config.get("kwargs", {}))
+        learner.warm_start = False
         learner.feature_names = config["features"]
         if not cluster_win:
             cluster_win.append([window])
@@ -139,11 +142,21 @@ def cluster_segments(segments, data_frame, config):
             y_train = df_window[config["target_var"]]
             learner.fit(X_train, y_train)
             cluster_eq = [learner.sympy()]
+            ax.plot(df_window["t"],learner.predict(X_train),label = "window" + ",".join(str(element) for element in window) + "newcluster")
             continue
         else:
             found_cluster = False
             for i, data in enumerate(cluster_data):
                 print("Current cluster",i,"of",len(cluster_win))
+                learner.equation_file = (
+                "./equations/"
+                + config["file_prefix"]
+                + "_win"
+                + str(window[1])
+                + "_cluster"
+                + str(i)
+                + ".csv"
+                )
                 concatenation = pl.concat([data, df_window])
                 X_train = concatenation[config["features"]]
                 y_train = concatenation[config["target_var"]]
@@ -151,17 +164,20 @@ def cluster_segments(segments, data_frame, config):
                 eq = learner.sympy()
                 loss = learner.get_best()[config["selection"]]
                 if cluster_criterion(
-                    mean(cluster_loss[i]), segment[config["selection"]], loss
+                    mean(cluster_loss[i]), segment[config["selection"]], loss, config["cluster_criterion"]["factor"]
                 ):
                     # todo: export to update cluster function
+                    print("cluster", window, "into", i)
                     cluster_win[i].append(window)
                     cluster_data[i] = pl.concat([data, df_window])
                     cluster_loss[i].append(segment[config["selection"]])
                     cluster_eq[i] = eq
                     found_cluster = True
+                    ax.plot(concatenation["t"],learner.predict(X_train),label = "window" + ",".join(str(element) for element in window) + "cluster" + str(i))
                     break
 
             if not found_cluster:
+                print("Create new cluster")
                 cluster_win.append([window])
                 cluster_data.append(df_window)
                 cluster_loss.append([segment[config["selection"]]])
@@ -169,11 +185,23 @@ def cluster_segments(segments, data_frame, config):
                 y_train = df_window[config["target_var"]]
                 learner.fit(X_train, y_train)
                 cluster_eq.append(learner.sympy())
+                ax.plot(df_window["t"],learner.predict(X_train),label = "window" + ",".join(str(element) for element in window) + "newcluster")
 
     print(cluster_win)
     print(cluster_eq)
+    ax.legend()
+    plt.show()
+    return cluster_win, cluster_eq
     # todo: if neighbouring are one dynamic: combine them to one window?
 
+def visualize_cluster(data, clusters):
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(data)
+    for i, cluster in enumerate(clusters):
+        alpha = i * 0.8 / len(clusters)
+        for window in cluster:
+            plt.axvline(window[0], window[1], color="red",alpha = alpha)
+    plt.show()
 
 def main(path):
     config = YAML(typ="safe").load(path)
@@ -202,7 +230,13 @@ def main(path):
     pandas_results['window'] = pandas_results['window'].apply(lambda x: ast.literal_eval(x))
     results = pl.DataFrame(pandas_results)
 
-    cluster_segments(results, data_frame, config)
+    cluster, equations = cluster_segments(results, data_frame, config)
+    visualize_cluster(data_frame[config["target_var"]], cluster)
+    cluster = pd.DataFrame.from_dict(cluster)
+    equations = pd.DataFrame.from_dict(equations)
+    cluster.to_csv("cluster.csv")
+    equations.to_csv("equations.csv")
+
 
 
 if __name__ == "__main__":
