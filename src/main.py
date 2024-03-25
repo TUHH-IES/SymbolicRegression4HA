@@ -113,10 +113,10 @@ def visualize_switches(data, switches):
 
 
 def cluster_criterion(cluster_loss, window_loss, concatenation_loss, factor):
-    # todo: move this to a file, make this adaptable and provide different options
+    # todo: move this to a file, make this adaptable and provide different options -> only cluster loss
     print("Cluster criterion", concatenation_loss, cluster_loss, window_loss)
     return (
-        concatenation_loss < factor * cluster_loss and concatenation_loss < factor * window_loss
+        concatenation_loss < factor * cluster_loss #and concatenation_loss < factor * window_loss
     )
 
 
@@ -195,19 +195,18 @@ def cluster_segments(segments, data_frame, config):
     # todo: if neighbouring are one dynamic: combine them to one window?
 
 def visualize_cluster(data, clusters):
+    cmap = plt.colormaps.get_cmap('hsv')
     fig, ax = plt.subplots(1, 1)
     ax.plot(data)
     for i, cluster in enumerate(clusters):
-        alpha = i * 0.8 / len(clusters)
+        alpha = 0.8 - i / len(clusters)
         for window in cluster:
-            plt.axvline(window[0], window[1], color="red",alpha = alpha)
+            plt.axvspan(window[0], window[1], color=cmap(i/len(clusters)),alpha = alpha)
     plt.show()
 
 def main(path):
     config = YAML(typ="safe").load(path)
-    data_frame = pl.read_csv(
-        config["file"], dtypes=[pl.Float64] * len(config["features"])
-    )
+    data_frame = pl.read_csv(config["file"], dtypes=[pl.Float64] * len(config["features"]))
     if "derivative" in config and config["derivative"]:
         data_frame = data_frame.with_columns(diff=pl.col(config["target_var"]).diff())
         data_frame[0, "diff"] = data_frame["diff"][
