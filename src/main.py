@@ -113,7 +113,7 @@ def visualize_switches(data, switches):
 
 
 def cluster_criterion(cluster_loss, window_loss, concatenation_loss, factor):
-    # todo: move this to a file, make this adaptable and provide different options -> only cluster loss
+    # todo: move this to a file, make this adaptable and provide different options -> only cluster loss, weighted mean of the two others?
     print("Cluster criterion", concatenation_loss, cluster_loss, window_loss)
     return (
         concatenation_loss < factor * cluster_loss #and concatenation_loss < factor * window_loss
@@ -121,7 +121,9 @@ def cluster_criterion(cluster_loss, window_loss, concatenation_loss, factor):
 
 
 def cluster_segments(segments, data_frame, config):
-    # todo: think about using previous models as starting point
+    # todo: use previous models as starting point (option: 
+        #1) try previous models for both. If one of them is better than the two before, a new one is found,
+        #2) test fit first, then re-learn?)
     cluster_win = []
     fig, ax = plt.subplots(1, 1)
     ax.plot(data_frame["t"],data_frame[config["target_var"]],label = "gt")
@@ -175,6 +177,7 @@ def cluster_segments(segments, data_frame, config):
                     found_cluster = True
                     ax.plot(concatenation["t"],learner.predict(X_train),label = "window" + ",".join(str(element) for element in window) + "cluster" + str(i))
                     break
+                #alternative procedure: test against all clusters and choose the smallest one, if the error is below something or the increase in accuracy is large enough
 
             if not found_cluster:
                 print("Create new cluster")
