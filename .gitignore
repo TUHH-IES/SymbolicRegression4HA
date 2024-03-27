@@ -4,9 +4,9 @@
 *.slx.r2015b
 *slprj/
 *__pycache__/
-*.png
 *.fig
 /venv/
 /dsovenv/
 /deep-symbolic-optimization/
 /equations/
+/prelogs/
