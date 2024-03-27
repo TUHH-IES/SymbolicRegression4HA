@@ -17,8 +17,12 @@ cluster_criterion:
   factor: 5
 
 kwargs:
-  niterations: 40
+  niterations: 100
   verbosity: 0
+  random_state: 42
+  deterministic: true
+  procs: 0
+  multithreading: false
   binary_operators:
     - "-"
     - "+"
