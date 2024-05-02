@@ -1,25 +1,27 @@
 import csv
+import sys
+import polars as pl
 
-def calculate_switch_rates(window):
+def calculate_switch_rates(tolerance, path):
     # Read detected switches from switches.csv
     detected_switches = []
-    with open('switches.csv', 'r') as file:
+    with open(f"{path}/switches.csv", 'r') as file:
         reader = csv.reader(file)
         for row in reader:
             detected_switches.append(float(row[0]))  # Assuming switch values are in the first column
 
     # Read ground truth switches from gt_switches.csv
     ground_truth_switches = []
-    with open('gt_switches.csv', 'r') as file:
+    file = f"{path}/gt_switches.csv"
+    with open(file, 'r') as file:
         reader = csv.reader(file)
-        for row in reader:
-            ground_truth_switches.append(float(row[0]))  # Assuming switch values are in the first column
+        ground_truth_switches = [float(row[0]) for row in reader]
 
     # Calculate true positive rate
     true_positives = 0
     for gt_switch in ground_truth_switches:
         for detected_switch in detected_switches:
-            if abs(gt_switch - detected_switch) <= window:
+            if abs(gt_switch - detected_switch) <= tolerance:
                 true_positives += 1
                 break  # Found a match, move to the next ground truth switch
 
@@ -31,20 +33,25 @@ def calculate_switch_rates(window):
 
     return true_positive_rate, false_positive_rate
 
-def calculate_mean_loss():
+def calculate_mean_loss(path):
     # Read cluster loss from clusters.csv
-    cluster_loss = []
-    with open('clusters.csv', 'r') as file:
-        reader = csv.reader(file)
-        for row in reader:
-            cluster_loss.append(float(row[0]))  # Assuming loss values are in the first column
+    file = f"{path}/cluster.csv"
+    df = pl.read_csv(file)
+
+    cluster_loss = df['loss']
 
     # Read cluster segments from cluster_segments.csv
     cluster_segments = []
-    with open('cluster_segments.csv', 'r') as file:
+    with open(f"{path}/cluster_segments.csv", 'r') as file:
         reader = csv.reader(file)
         for row in reader:
-            window_sizes = [float(window) for window in row]  # Assuming window sizes are in each row
+            # Separate series into tuples of values
+            window_sizes = []
+            for word in row:
+                if word == "":
+                    continue
+                start, end = word.strip("[]").split(",")
+                window_sizes.append((int(end) - int(start)))
             cluster_segments.append(window_sizes)
 
     # Calculate mean loss
@@ -54,10 +61,14 @@ def calculate_mean_loss():
 
     return mean_loss
 
-# Example usage with window size of 0.5
-window_size = 0.5
-tp_rate, fp_rate = calculate_switch_rates(window_size)
-print(f"True Positive Rate: {tp_rate}")
-print(f"False Positive Rate: {fp_rate}")
-
-mean_loss = calculate_switch_rates()
+if __name__ == "__main__":
+    path = sys.argv[1]
+    tolerance = float(sys.argv[2])
+    
+    tp_rate, fp_rate = calculate_switch_rates(tolerance, path)
+    mean_loss = calculate_mean_loss(path)
+    file = open(f"{path}/evaluation.txt", "w")
+    file.write(f"True positive rate: {tp_rate}\n")
+    file.write(f"False positive rate: {fp_rate}\n")
+    file.write(f"Mean loss: {mean_loss}\n")
+    file.close()
