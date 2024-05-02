@@ -10,3 +10,5 @@
 /deep-symbolic-optimization/
 /equations/
 /prelogs/
+*.bkup
+*.pkl
