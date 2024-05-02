@@ -33,7 +33,7 @@ def identify_switch(config, data_frame):
     fitness_hist = deque([], hist_length)
     switches = [0]
     window = [0, start_width - step_width]
-    log_list = []
+    segments = []
     while window[1] < len(data_frame):
         learner.warm_start = False
         fitness_hist = deque([], hist_length)
@@ -65,42 +65,23 @@ def identify_switch(config, data_frame):
             learner.warm_start = True
             learner.niterations = step_iterations
             extension = extension + 1
-            log_best = []
-            log_best.append(
-                [
-                    window,
-                    learner.sympy(),
-                    learner.get_best()["loss"],
-                    learner.get_best()["score"],
-                ]
-            )
-            df_log = pd.DataFrame.from_dict(log_best)
-            df_log.to_csv(
-                "./equations/"
-                + config["file_prefix"]
-                + "_win"
-                + str(len(switches))
-                + "_ext"
-                + str(extension)
-                + "_best.csv"
-            )
 
         log = dict()
         log["extensions"] = extension - 1
-        log["window"] = copy.deepcopy(window)
-        log["window"][1] = log["window"][1] - step_width
+        log["window_start"] = window[0]
+        log["window_end"] = window[1] - step_width
         log["equation"] = best_equation
         log[selection] = learner.get_best()[selection]
-        log_list.append(log)
+        segments.append(log)
         switches.append(window[1] - step_width)
         window[0] = window[1] - step_width
         window[1] = min(window[0] + start_width - step_width, len(data_frame))
         learner.niterations = config["kwargs"]["niterations"]
 
     switches[-1] = len(data_frame)
-    log_list[-1]["window"][1] = len(data_frame)
-    log_list[-1]["extensions"] = log_list[-1]["extensions"] + 1
-    df = pl.DataFrame.from_dict(log_list)
+    segments[-1]["window_end"] = len(data_frame)
+    segments[-1]["extensions"] = segments[-1]["extensions"] + 1
+    df = pl.from_dicts(segments)
     return switches, df
 
 
@@ -125,8 +106,8 @@ def cluster_segments(segments, data_frame, config):
         #1) try previous models for both. If one of them is better than the two before, a new one is found,
         #2) test fit first, then re-learn?)
     cluster_win = []
-    fig, ax = plt.subplots(1, 1)
-    ax.plot(data_frame["t"],data_frame[config["target_var"]],label = "gt")
+    #fig, ax = plt.subplots(1, 1)
+    #ax.plot(data_frame["t"],data_frame[config["target_var"]],label = "gt")
 
     for segment in segments.iter_rows(named=True):
         window = segment["window"]
@@ -144,7 +125,7 @@ def cluster_segments(segments, data_frame, config):
             y_train = df_window[config["target_var"]]
             learner.fit(X_train, y_train)
             cluster_eq = [learner.sympy()]
-            ax.plot(df_window["t"],learner.predict(X_train),label = "window" + ",".join(str(element) for element in window) + "newcluster")
+            #ax.plot(df_window["t"],learner.predict(X_train),label = "window" + ",".join(str(element) for element in window) + "newcluster")
             continue
         else:
             found_cluster = False
@@ -175,7 +156,7 @@ def cluster_segments(segments, data_frame, config):
                     cluster_loss[i].append(segment[config["selection"]])
                     cluster_eq[i] = eq
                     found_cluster = True
-                    ax.plot(concatenation["t"],learner.predict(X_train),label = "window" + ",".join(str(element) for element in window) + "cluster" + str(i))
+                    #ax.plot(concatenation["t"],learner.predict(X_train),label = "window" + ",".join(str(element) for element in window) + "cluster" + str(i))
                     break
                 #alternative procedure: test against all clusters and choose the smallest one, if the error is below something or the increase in accuracy is large enough
 
@@ -188,12 +169,12 @@ def cluster_segments(segments, data_frame, config):
                 y_train = df_window[config["target_var"]]
                 learner.fit(X_train, y_train)
                 cluster_eq.append(learner.sympy())
-                ax.plot(df_window["t"],learner.predict(X_train),label = "window" + ",".join(str(element) for element in window) + "newcluster")
+                #ax.plot(df_window["t"],learner.predict(X_train),label = "window" + ",".join(str(element) for element in window) + "newcluster")
 
     print(cluster_win)
     print(cluster_eq)
-    ax.legend()
-    plt.show()
+    #ax.legend()
+    #plt.show()
     return cluster_win, cluster_eq
     # todo: if neighbouring are one dynamic: combine them to one window?
 
@@ -221,16 +202,16 @@ def main(path):
         config["selection"] = "loss"
 
     # Segmentation
-    #switches, results = identify_switch(config, data_frame)
-    #results.to_csv("segmentation_results.csv")
-    #print(switches)
-    #visualize_switches(data_frame[config["target_var"]], switches)
+    switches, results = identify_switch(config, data_frame)
+    results.write_csv("segmentation_results.json")
+    print(switches)
+    visualize_switches(data_frame[config["target_var"]], switches)
 
     # Clustering
     # optional: read previous results from file:
-    pandas_results = pd.read_csv("segmentation_results.csv")
-    pandas_results['window'] = pandas_results['window'].apply(lambda x: ast.literal_eval(x))
-    results = pl.DataFrame(pandas_results)
+    #pandas_results = pd.read_csv("segmentation_results.csv")
+    #pandas_results['window'] = pandas_results['window'].apply(lambda x: ast.literal_eval(x))
+    #results = pl.DataFrame(pandas_results)
 
     cluster, equations = cluster_segments(results, data_frame, config)
     visualize_cluster(data_frame[config["target_var"]], cluster)

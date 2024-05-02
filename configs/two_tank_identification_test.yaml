@@ -16,6 +16,8 @@ criterion:
   name: "decrease"
   kwargs:
     saturation: 1e-7
+cluster_criterion:
+  factor: 5
 
 kwargs:
   niterations: 40
