@@ -122,7 +122,8 @@ def cluster_segments(segments, data_frame, config):
         if not cluster_win:
             cluster_win.append([window])
             cluster_data = [df_window]
-            cluster_loss = [[segment[config["selection"]]]]
+            cluster_loss = [segment[config["selection"]]]
+            cluster_segment_loss = [[segment[config["selection"]]]]
             X_train = df_window[config["features"]]
             y_train = df_window[config["target_var"]]
             learner.fit(X_train, y_train)
@@ -149,13 +150,15 @@ def cluster_segments(segments, data_frame, config):
                 eq = learner.sympy()
                 loss = learner.get_best()[config["selection"]]
                 if cluster_criterion(
-                    mean(cluster_loss[i]), segment[config["selection"]], loss, config["cluster_criterion"]["factor"]
+                    mean(cluster_segment_loss[i]), segment[config["selection"]], loss, config["cluster_criterion"]["factor"]
                 ):
                     # todo: export to update cluster function
                     print("cluster", window, "into", i)
                     cluster_win[i].append(window)
                     cluster_data[i] = pl.concat([data, df_window])
-                    cluster_loss[i].append(segment[config["selection"]])
+                    # todo: calculate weighted loss (by segment length)
+                    cluster_segment_loss[i].append(segment[config["selection"]])
+                    cluster_loss[i] = loss
                     cluster_eq[i] = eq
                     found_cluster = True
                     #ax.plot(concatenation["t"],learner.predict(X_train),label = "window" + ",".join(str(element) for element in window) + "cluster" + str(i))
@@ -166,7 +169,8 @@ def cluster_segments(segments, data_frame, config):
                 print("Create new cluster")
                 cluster_win.append([window])
                 cluster_data.append(df_window)
-                cluster_loss.append([segment[config["selection"]]])
+                cluster_loss.append(segment[config["selection"]])
+                cluster_segment_loss.append([segment[config["selection"]]])
                 X_train = df_window[config["features"]]
                 y_train = df_window[config["target_var"]]
                 learner.fit(X_train, y_train)
@@ -219,7 +223,7 @@ def main(path):
     visualize_cluster(data_frame[config["target_var"]], segments)
     cluster = pd.DataFrame.from_dict(cluster)
     segments = pd.DataFrame(segments)
-    segments.to_csv("cluster_segments.csv")
+    segments.to_csv("cluster_segments.csv", header=False, index=False)
     cluster.to_csv("cluster.csv")
 
 if __name__ == "__main__":
