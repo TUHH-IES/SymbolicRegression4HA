@@ -25,6 +25,10 @@ segmentation:
     verbosity: 0
     complexity_of_constants: 10
     parsimony: 1e-6
+    random_state: 42
+    deterministic: true
+    procs: 0
+    multithreading: false
     binary_operators:
       - "-"
       - "+"
@@ -36,6 +40,10 @@ clustering:
   kwargs:
     niterations: 10
     verbosity: 0
+    random_state: 42
+    deterministic: true
+    procs: 0
+    multithreading: false
     complexity_of_constants: 10
     parsimony: 1e-8
     binary_operators:
