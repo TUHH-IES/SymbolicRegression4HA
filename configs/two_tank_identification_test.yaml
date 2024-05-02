@@ -17,18 +17,32 @@ criterion:
   kwargs:
     saturation: 1e-7
 cluster_criterion:
-  factor: 5
+  factor: 1.5
 
-kwargs:
-  niterations: 40
-  verbosity: 0
-  complexity_of_constants: 10
-  parsimony: 1e-6
-  binary_operators:
-    - "-"
-    - "+"
-    - "*"
-    - "/"
-  unary_operators:
+segmentation:
+  kwargs:
+    niterations: 40
+    verbosity: 0
+    complexity_of_constants: 10
+    parsimony: 1e-6
+    binary_operators:
+      - "-"
+      - "+"
+      - "*"
+      - "/"
+    unary_operators:
+
+clustering:
+  kwargs:
+    niterations: 10
+    verbosity: 0
+    complexity_of_constants: 10
+    parsimony: 1e-8
+    binary_operators:
+      - "-"
+      - "+"
+      - "*"
+      - "/"
+    unary_operators:
 
 target_var: 'dy'

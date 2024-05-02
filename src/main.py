@@ -4,12 +4,13 @@ from pathlib import Path
 from collections import deque
 
 import matplotlib.pyplot as plt
+import tikzplotlib
 import polars as pl
 import pandas as pd
-import copy
-import ast
 from functools import partial
 from statistics import mean
+
+import sympy
 
 from pysr import PySRRegressor
 
@@ -27,7 +28,7 @@ def identify_switch(config, data_frame):
         criterion = partial(criterion, **config["criterion"]["kwargs"])
     selection = config["selection"]
 
-    learner = PySRRegressor(**config.get("kwargs", {}))
+    learner = PySRRegressor(**config["segmentation"].get("kwargs", {}))
     learner.feature_names = config["features"]
 
     fitness_hist = deque([], hist_length)
@@ -70,7 +71,7 @@ def identify_switch(config, data_frame):
         log["extensions"] = extension - 1
         log["window_start"] = window[0]
         log["window_end"] = window[1] - step_width
-        log["equation"] = best_equation
+        log["equation"] = sympy.sstr(best_equation)
         log[selection] = learner.get_best()[selection]
         segments.append(log)
         switches.append(window[1] - step_width)
@@ -90,6 +91,7 @@ def visualize_switches(data, switches):
     ax.plot(data)
     for x in switches:
         plt.axvline(x=x, color="red")
+    tikzplotlib.save("switches.tex")
     plt.show()
 
 
@@ -110,11 +112,11 @@ def cluster_segments(segments, data_frame, config):
     #ax.plot(data_frame["t"],data_frame[config["target_var"]],label = "gt")
 
     for segment in segments.iter_rows(named=True):
-        window = segment["window"]
+        window = [segment["window_start"], segment["window_end"]]
         print("Current window:", window)
         df_window = data_frame.slice(window[0], (window[1] - window[0]))
 
-        learner = PySRRegressor(**config.get("kwargs", {}))
+        learner = PySRRegressor(**config["clustering"].get("kwargs", {}))
         learner.warm_start = False
         learner.feature_names = config["features"]
         if not cluster_win:
@@ -175,7 +177,8 @@ def cluster_segments(segments, data_frame, config):
     print(cluster_eq)
     #ax.legend()
     #plt.show()
-    return cluster_win, cluster_eq
+    cluster = {"equation": cluster_eq, "loss": cluster_loss}
+    return cluster_win, cluster
     # todo: if neighbouring are one dynamic: combine them to one window?
 
 def visualize_cluster(data, clusters):
@@ -186,6 +189,7 @@ def visualize_cluster(data, clusters):
         alpha = 0.8 - i / len(clusters)
         for window in cluster:
             plt.axvspan(window[0], window[1], color=cmap(i/len(clusters)),alpha = alpha)
+    tikzplotlib.save("cluster.tex")
     plt.show()
 
 def main(path):
@@ -202,25 +206,21 @@ def main(path):
         config["selection"] = "loss"
 
     # Segmentation
-    switches, results = identify_switch(config, data_frame)
-    results.write_csv("segmentation_results.json")
-    print(switches)
-    visualize_switches(data_frame[config["target_var"]], switches)
+    #switches, results = identify_switch(config, data_frame)
+    #results.write_csv("segmentation_results.csv")
+    #print(switches)
+    #visualize_switches(data_frame[config["target_var"]], switches)
 
     # Clustering
     # optional: read previous results from file:
-    #pandas_results = pd.read_csv("segmentation_results.csv")
-    #pandas_results['window'] = pandas_results['window'].apply(lambda x: ast.literal_eval(x))
-    #results = pl.DataFrame(pandas_results)
+    results = pl.read_csv("segmentation_results.csv")
 
-    cluster, equations = cluster_segments(results, data_frame, config)
-    visualize_cluster(data_frame[config["target_var"]], cluster)
+    segments, cluster = cluster_segments(results, data_frame, config)
+    visualize_cluster(data_frame[config["target_var"]], segments)
     cluster = pd.DataFrame.from_dict(cluster)
-    equations = pd.DataFrame.from_dict(equations)
+    segments = pd.DataFrame(segments)
+    segments.to_csv("cluster_segments.csv")
     cluster.to_csv("cluster.csv")
-    equations.to_csv("equations.csv")
-
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
