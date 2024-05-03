@@ -77,7 +77,7 @@ def identify_switch(config, data_frame):
         switches.append(window[1] - step_width)
         window[0] = window[1] - step_width
         window[1] = min(window[0] + start_width - step_width, len(data_frame))
-        learner.niterations = config["kwargs"]["niterations"]
+        learner.niterations = config["segmentation"]["kwargs"]["niterations"]
 
     switches[-1] = len(data_frame)
     segments[-1]["window_end"] = len(data_frame)

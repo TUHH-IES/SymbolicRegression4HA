@@ -1,4 +1,4 @@
-file: "data/electricCircuit1mode/circuit_data.csv"
+file: "data/electricCircuit3mode/circuit_data.csv"
 features:
   - U1
   - U2
