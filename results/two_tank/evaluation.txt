@@ -1,3 +1,4 @@
-True positive rate: 1.0
-False positive rate: 0.0
-Mean loss: 6.21082626e-06
+Number of detected switches: 27
+True positive rate: 0.9285714285714286
+False positive rate: 0.037037037037037035
+Mean loss: 5.2628352795e-06

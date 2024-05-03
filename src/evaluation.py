@@ -8,7 +8,7 @@ def calculate_switch_rates(tolerance, path):
     with open(f"{path}/switches.csv", 'r') as file:
         reader = csv.reader(file)
         for row in reader:
-            detected_switches.append(float(row[0]))  # Assuming switch values are in the first column
+            detected_switches.append(float(row[0]))
 
     # Read ground truth switches from gt_switches.csv
     ground_truth_switches = []
@@ -31,7 +31,7 @@ def calculate_switch_rates(tolerance, path):
     false_positives = len(detected_switches) - true_positives
     false_positive_rate = false_positives / len(detected_switches)
 
-    return true_positive_rate, false_positive_rate
+    return true_positive_rate, false_positive_rate, len(detected_switches)
 
 def calculate_mean_loss(path):
     # Read cluster loss from clusters.csv
@@ -65,9 +65,10 @@ if __name__ == "__main__":
     path = sys.argv[1]
     tolerance = float(sys.argv[2])
     
-    tp_rate, fp_rate = calculate_switch_rates(tolerance, path)
+    tp_rate, fp_rate, num_detected = calculate_switch_rates(tolerance, path)
     mean_loss = calculate_mean_loss(path)
     file = open(f"{path}/evaluation.txt", "w")
+    file.write(f"Number of detected switches: {num_detected}\n")
     file.write(f"True positive rate: {tp_rate}\n")
     file.write(f"False positive rate: {fp_rate}\n")
     file.write(f"Mean loss: {mean_loss}\n")
