@@ -5,20 +5,20 @@ features:
   - w2
 
 start_width: 100
-step_width: 10
-step_iterations: 15
+step_width: 20
+step_iterations: 20
 file_prefix: "cluster"
 hist_length: 5
 criterion: 
   name: "decrease"
   kwargs:
-    saturation: 1e-7
+    saturation: 1e-6
 cluster_criterion:
-  factor: 5
+  factor: 1
 
 segmentation:
   kwargs:
-    niterations: 40
+    niterations: 100
     verbosity: 0
     random_state: 42
     deterministic: true
@@ -34,7 +34,7 @@ segmentation:
 
 clustering:
   kwargs:
-    niterations: 100
+    niterations: 20
     verbosity: 0
     random_state: 42
     deterministic: true
