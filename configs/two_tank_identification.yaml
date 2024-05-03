@@ -17,7 +17,7 @@ criterion:
   kwargs:
     saturation: 1e-7
 cluster_criterion:
-  factor: 1.5
+  factor: 1.6
 
 segmentation:
   kwargs:
@@ -38,7 +38,7 @@ segmentation:
 
 clustering:
   kwargs:
-    niterations: 10
+    niterations: 8
     verbosity: 0
     random_state: 42
     deterministic: true
