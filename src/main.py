@@ -212,6 +212,8 @@ def main(path):
     # Segmentation
     switches, results = identify_switch(config, data_frame)
     results.write_csv("segmentation_results.csv")
+    switch_df = pd.DataFrame(switches)
+    switch_df.to_csv("switches.csv", header=False, index=False)
     print(switches)
     visualize_switches(data_frame[config["target_var"]], switches)
 
