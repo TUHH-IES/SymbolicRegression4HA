@@ -210,14 +210,14 @@ def main(path):
         config["selection"] = "loss"
 
     # Segmentation
-    #switches, results = identify_switch(config, data_frame)
-    #results.write_csv("segmentation_results.csv")
-    #print(switches)
-    #visualize_switches(data_frame[config["target_var"]], switches)
+    switches, results = identify_switch(config, data_frame)
+    results.write_csv("segmentation_results.csv")
+    print(switches)
+    visualize_switches(data_frame[config["target_var"]], switches)
 
     # Clustering
     # optional: read previous results from file:
-    results = pl.read_csv("segmentation_results.csv")
+    #results = pl.read_csv("segmentation_results.csv")
 
     segments, cluster = cluster_segments(results, data_frame, config)
     visualize_cluster(data_frame[config["target_var"]], segments)

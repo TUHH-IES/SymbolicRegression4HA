@@ -1,25 +1,28 @@
-file: "data/converter/short_wto_zeros_data_converter_omega400e3_beta40e3_Q10_theta60.csv"
+file: "data/electricCircuit1mode/circuit_data.csv"
 features:
-  - t
-  - w1
-  - w2
+  - U1
+  - U2
+  - U3
+  - R
 
-start_width: 100
-step_width: 10
-step_iterations: 15
-file_prefix: "cluster"
+start_width: 200
+step_width: 100
+step_iterations: 5
+file_prefix: "circuit1"
 hist_length: 5
 criterion: 
   name: "decrease"
   kwargs:
     saturation: 1e-7
 cluster_criterion:
-  factor: 5
+  factor: 1.5
 
 segmentation:
   kwargs:
-    niterations: 40
+    niterations: 20
     verbosity: 0
+    complexity_of_constants: 10
+    parsimony: 1e-6
     random_state: 42
     deterministic: true
     procs: 0
@@ -30,23 +33,22 @@ segmentation:
       - "*"
       - "/"
     unary_operators:
-      - "sqrt"
 
 clustering:
   kwargs:
-    niterations: 100
+    niterations: 20
     verbosity: 0
     random_state: 42
     deterministic: true
     procs: 0
     multithreading: false
+    complexity_of_constants: 10
+    parsimony: 1e-6
     binary_operators:
       - "-"
       - "+"
       - "*"
       - "/"
     unary_operators:
-      - "sqrt"
 
-target_var: 'w2'
-derivative: true
+target_var: 'I1'
