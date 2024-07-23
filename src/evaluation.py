@@ -23,7 +23,7 @@ def calculate_switch_rates(tolerance, path):
         for detected_switch in detected_switches:
             if abs(gt_switch - detected_switch) <= tolerance:
                 true_positives += 1
-                break  # Found a match, move to the next ground truth switch
+                break
 
     true_positive_rate = true_positives / len(ground_truth_switches)
 
