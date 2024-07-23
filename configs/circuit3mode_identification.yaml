@@ -10,14 +10,12 @@ step_width: 100
 step_iterations: 5
 file_prefix: "circuit1"
 hist_length: 5
-criterion: 
-  name: "decrease"
-  kwargs:
-    saturation: 1e-7
-cluster_criterion:
-  factor: 1.5
 
 segmentation:
+  criterion: 
+    name: "decrease"
+    kwargs:
+      saturation: 1e-7
   kwargs:
     niterations: 20
     verbosity: 0
@@ -34,7 +32,11 @@ segmentation:
       - "/"
     unary_operators:
 
-clustering:
+grouping:
+  criterion:
+    name: "preserving_group_loss"
+    kwargs:
+      factor: 1.5
   kwargs:
     niterations: 20
     verbosity: 0
