@@ -15,9 +15,9 @@ hist_length: 5
 
 segmentation:
   criterion: 
-  name: "decrease"
-  kwargs:
-    saturation: 1e-7
+    name: "decrease"
+    kwargs:
+      saturation: 1e-7
   kwargs:
     niterations: 40
     verbosity: 0
