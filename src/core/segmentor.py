@@ -98,11 +98,22 @@ class Segmentor:
                 self.learner.niterations = self.step_iterations
                 extension = extension + 1
 
-            window_end = len(data_frame) if window[1] >= len(data_frame) else window[1] - self.step_width
+            if(window[1] >= len(data_frame)):
+                result_row = pl.DataFrame({
+                    "window_start": [window[0]],
+                    "window_end": [len(data_frame)],
+                    "extensions": [extension],
+                    "equation": [str(best_equation)],
+                    self.selection: [self.learner.get_best()[self.selection]]
+                })
+                segments = segments.vstack(result_row)
+                break
+
+            window_end = window[1] - self.step_width
             result_row = pl.DataFrame({
                 "window_start": [window[0]],
                 "window_end": [window_end],
-                "extensions": [extension if window[1] >= len(data_frame) else extension - 1],
+                "extensions": [extension - 1],
                 "equation": [str(best_equation)],
                 self.selection: [self.learner.get_best()[self.selection]]
             })
