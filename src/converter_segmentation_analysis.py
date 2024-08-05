@@ -16,7 +16,7 @@ def segmentation_distance(segmented_data):
     penalty += 100*abs(len(ground_truth_switches) - len(segmented_data.switches))
     for i in range(len(segmented_data.switches)):
         closest_value = min(ground_truth_switches, key=lambda x: abs(x - segmented_data.switches[i]))
-        penalty += abs(closest_value - segmented_data.switches[i])
+        penalty += abs(closest_value - segmented_data.switches[i]) / len(segmented_data.switches)
 
     return penalty
 
