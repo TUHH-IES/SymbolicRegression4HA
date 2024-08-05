@@ -29,12 +29,12 @@ def objective(trial: optuna.Trial) -> float:
     config["segmentation"]["kwargs"]["niterations"] = trial.suggest_int("start_iterations", 20, 200)
     config["segmentation"]["kwargs"]["parsimony"] = trial.suggest_float("parsimony", 0.0, 1.0)
     segmented_data = experiment_segmentation.experiment_segmentation(config)
-    trial.set_user_attr("segments", segmented_data.segments.write_json())
+    trial.set_user_attr("segments", segmented_data.segments.to_dict())
     trial.set_user_attr("switches", segmented_data.switches)
 
     return segmentation_distance(segmented_data)
 
 if __name__ == "__main__":
 
-    study = optuna.create_study(storage="sqlite:///converter_segmentation.db", study_name="converter-segmentation", load_if_exists=True)
-    study.optimize(objective, n_trials=10)
+    study = optuna.create_study(storage="sqlite:///segmentation_analysis.db", study_name="converter", load_if_exists=True)
+    study.optimize(objective)
