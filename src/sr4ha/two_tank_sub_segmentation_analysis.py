@@ -5,7 +5,7 @@ from ruamel.yaml import YAML
 import experiment_segmentation
 
 def objective(trial: optuna.Trial) -> float:
-    config = YAML(typ="safe").load(Path("configs/two_tank_nsub_identification.yaml"))
+    config = YAML(typ="safe").load(Path("configs/two_tank_sub_identification.yaml"))
     config["start_width"] = trial.suggest_int("start_width", 10, 200)
     config["step_width"] = trial.suggest_int("step_width", 1, config["start_width"])
     config["segmentation"]["criterion"]["kwargs"]["saturation"] = trial.suggest_float("saturation", 1e-10, 1e-3,log=True)
@@ -20,5 +20,5 @@ def objective(trial: optuna.Trial) -> float:
 
 if __name__ == "__main__":
 
-    study = optuna.create_study(storage="sqlite:///segmentation_analysis.db", study_name="two_tank_nsub", load_if_exists=True)
+    study = optuna.create_study(storage="sqlite:///segmentation_analysis.db", study_name="two_tank_sub", load_if_exists=True)
     study.optimize(objective)
