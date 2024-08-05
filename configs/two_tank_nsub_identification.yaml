@@ -9,7 +9,7 @@ features:
 start_width: 50
 step_width: 10
 step_iterations: 5
-file_prefix: "test"
+file_prefix: "two-tank-nsub"
 hist_length: 5
 
 segmentation:

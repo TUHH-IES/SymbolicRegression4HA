@@ -7,7 +7,7 @@ features:
 start_width: 100
 step_width: 20
 step_iterations: 20
-file_prefix: "cluster"
+file_prefix: "converter"
 hist_length: 5
 
 segmentation:
