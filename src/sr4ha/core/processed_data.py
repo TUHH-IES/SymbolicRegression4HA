@@ -2,6 +2,7 @@ import polars as pl
 import matplotlib.pyplot as plt
 import tikzplotlib
 import sympy
+import csv
 
 class SegmentedData:
     def __init__(self, data: pl.DataFrame, segments: pl.DataFrame, switches, target_var):
@@ -34,6 +35,33 @@ class SegmentedData:
 
     def write_switches_csv(self, path):
         pl.DataFrame(self.switches).write_csv(path)
+
+    def get_segmentation_deviation(self, file, length_penalty=100):
+        with open(file, 'r') as file:
+            reader = csv.reader(file)
+            ground_truth_switches = [float(row[0]) for row in reader]
+
+        deviation = 0
+        deviation += length_penalty*abs(len(ground_truth_switches) - len(self.switches))
+        matching = [None] * len(ground_truth_switches)
+        for i in range(len(ground_truth_switches)):
+            matching[i] = min(range(len(self.switches)), key=lambda x: abs(self.switches[x] - ground_truth_switches[i]))
+            if i > 0 and matching[i-1] is not None and matching[i] == matching[i-1]:
+                new_dist = abs(self.switches[matching[i]] - ground_truth_switches[i])
+                pre_dist = abs(self.switches[matching[i-1]] - ground_truth_switches[i])
+                old_dist = abs(self.switches[matching[i-1]] - ground_truth_switches[i-1])
+                if pre_dist < old_dist or new_dist > old_dist:
+                    matching[i] = None
+                else:
+                    matching[i-1] = None
+                    
+
+        print(matching)
+        for i in range(len(matching)):
+            if matching[i] is not None:
+                deviation += abs(self.switches[matching[i]] - ground_truth_switches[i]) / len(self.switches)
+
+        return deviation
 
     
 

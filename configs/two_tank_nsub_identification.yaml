@@ -1,0 +1,57 @@
+file: "data/twotank/data_withsubst.csv"
+features:
+  - mQp
+  - y1
+  - y2
+  - A1
+  - Cvb
+
+start_width: 50
+step_width: 10
+step_iterations: 5
+file_prefix: "test"
+hist_length: 5
+
+segmentation:
+  criterion: 
+  name: "decrease"
+  kwargs:
+    saturation: 1e-7
+  kwargs:
+    niterations: 40
+    verbosity: 0
+    complexity_of_constants: 10
+    parsimony: 1e-6
+    random_state: 42
+    deterministic: true
+    procs: 0
+    multithreading: false
+    binary_operators:
+      - "-"
+      - "+"
+      - "*"
+      - "/"
+    unary_operators:
+      - "sqrt"
+
+clustering:
+  criterion:
+    kwargs:
+      factor: 1.6
+  kwargs:
+    niterations: 8
+    verbosity: 0
+    random_state: 42
+    deterministic: true
+    procs: 0
+    multithreading: false
+    complexity_of_constants: 10
+    parsimony: 1e-8
+    binary_operators:
+      - "-"
+      - "+"
+      - "*"
+      - "/"
+    unary_operators:
+
+target_var: 'dy'

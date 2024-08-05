@@ -12,14 +12,12 @@ step_width: 10
 step_iterations: 5
 file_prefix: "test"
 hist_length: 5
-criterion: 
+
+segmentation:
+  criterion: 
   name: "decrease"
   kwargs:
     saturation: 1e-7
-cluster_criterion:
-  factor: 1.6
-
-segmentation:
   kwargs:
     niterations: 40
     verbosity: 0
@@ -37,6 +35,9 @@ segmentation:
     unary_operators:
 
 clustering:
+  criterion:
+    kwargs:
+      factor: 1.6
   kwargs:
     niterations: 8
     verbosity: 0
