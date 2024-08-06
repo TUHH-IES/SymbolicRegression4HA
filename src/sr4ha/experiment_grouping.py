@@ -1,5 +1,4 @@
 import polars as pl
-import time
 
 import core.group_identificator
 import core.processed_data
