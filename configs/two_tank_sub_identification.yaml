@@ -34,8 +34,9 @@ segmentation:
       - "/"
     unary_operators:
 
-clustering:
+grouping:
   criterion:
+    name: "preserving_group_loss"
     kwargs:
       factor: 1.6
   kwargs:
