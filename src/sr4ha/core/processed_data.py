@@ -10,10 +10,11 @@ class SegmentedData:
         self.switches = switches
         self.target_var = target_var
 
-    def from_file(self, data, target_var, path):
-        segments = pl.DataFrame.read_csv(path)
-        switches = pl.DataFrame.read_csv(path)
-        return SegmentedData(data, segments, switches.to_dict().values(), target_var)
+    @classmethod
+    def from_file(cls, data, target_var, path):
+        segments = pl.read_csv(path)
+        switches = segments["window_start"].to_list()
+        return cls(data, segments, switches, target_var)
 
     def visualize(self):
         fig, ax = plt.subplots(1, 1)
