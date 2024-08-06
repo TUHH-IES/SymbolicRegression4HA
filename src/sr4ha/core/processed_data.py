@@ -1,6 +1,5 @@
 import polars as pl
 import matplotlib.pyplot as plt
-import tikzplotlib
 import sympy
 import csv
 
@@ -22,13 +21,6 @@ class SegmentedData:
         for x in self.switches:
             plt.axvline(x=x, color="red")
         plt.show()
-
-    def to_tikz(self):
-        fig, ax = plt.subplots(1, 1)
-        ax.plot(self.data[self.target_var])
-        for x in self.switches:
-            plt.axvline(x=x, color="red")
-        tikzplotlib.save("switches.tex")
 
     def write_segments_csv(self, path):
         self.segments.write_csv(path)
@@ -94,7 +86,6 @@ class GroupedData:
                 plt.axvspan(
                     window[0], window[1], color=cmap(i / len(self.groups)), alpha=alpha
                 )
-        tikzplotlib.save("cluster.tex")
         plt.show()
 
     def get_mean_loss(self):
@@ -120,6 +111,19 @@ class GroupedData:
             "window_end": [window[1] for group in self.groups for window in group.windows],
         })
         data.write_csv(path)
+
+    def to_json(self):
+        return {
+            "groups": [
+                {
+                    "group_id": group.group_id,
+                    "loss": group.loss,
+                    "equation": sympy.sstr(group.equation),
+                    "windows": group.windows,
+                }
+                for group in self.groups
+            ]
+        }
 
 
 class Group:
