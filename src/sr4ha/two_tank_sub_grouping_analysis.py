@@ -13,7 +13,9 @@ def objective(trial: optuna.Trial) -> float:
     grouped_data = experiment_grouping.experiment(config, Path("results/two_tank/sub/segmentation_results.csv"))
     trial.set_user_attr("groups", grouped_data.to_json())
 
-    return grouped_data.get_mean_loss()
+    # Add a penalty for the number of groups
+    gt_groups = 3
+    return grouped_data.get_mean_loss() * (1 + abs(len(grouped_data.groups) - gt_groups))
 
 if __name__ == "__main__":
 
