@@ -45,6 +45,7 @@ grouping:
     random_state: 42
     deterministic: true
     procs: 0
+    populations: 15
     multithreading: false
     complexity_of_constants: 10
     parsimony: 1e-8

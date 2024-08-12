@@ -38,16 +38,17 @@ grouping:
   criterion:
     name: "preserving_group_loss"
     kwargs:
-      factor: 1.6
+      factor: 0.2
   kwargs:
-    niterations: 8
+    niterations: 156
     verbosity: 0
     random_state: 42
     deterministic: true
     procs: 0
     multithreading: false
     complexity_of_constants: 10
-    parsimony: 1e-8
+    parsimony: 0.935
+    populations: 15
     binary_operators:
       - "-"
       - "+"

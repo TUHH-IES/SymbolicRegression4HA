@@ -38,6 +38,7 @@ grouping:
       factor: 1
   kwargs:
     niterations: 20
+    populations: 15
     verbosity: 0
     random_state: 42
     deterministic: true

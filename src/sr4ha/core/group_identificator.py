@@ -74,7 +74,7 @@ class GroupIdentificator:
         data_frame = segmented_results.data
         target_var = segmented_results.target_var
 
-        group_data = GroupedData(data_frame, target_var)
+        group_data = GroupedData(data_frame, target_var, groups=[])
         for segment in segments.iter_rows(named=True):
             window = [segment["window_start"], segment["window_end"]]
             curr_segment_loss = segment[self.selection]
