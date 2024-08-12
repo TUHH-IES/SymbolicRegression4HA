@@ -18,5 +18,5 @@ def objective(trial: optuna.Trial) -> float:
 
 if __name__ == "__main__":
 
-    study = optuna.create_study(storage="sqlite:///grouping_analysis2.db", study_name="converter", load_if_exists=True)
+    study = optuna.create_study(storage="sqlite:///grouping_analysis.db", study_name="converter", load_if_exists=True)
     study.optimize(objective)
