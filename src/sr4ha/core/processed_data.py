@@ -39,14 +39,14 @@ class SegmentedData:
         matching = [None] * len(ground_truth_switches)
         for i in range(len(ground_truth_switches)):
             matching[i] = min(range(len(self.switches)), key=lambda x: abs(self.switches[x] - ground_truth_switches[i]))
-            if i > 0 and matching[i-1] is not None and matching[i] == matching[i-1]:
+            if matching[i] in matching[:i]:
+                index = matching[:i].index(matching[i])
                 new_dist = abs(self.switches[matching[i]] - ground_truth_switches[i])
-                pre_dist = abs(self.switches[matching[i-1]] - ground_truth_switches[i])
-                old_dist = abs(self.switches[matching[i-1]] - ground_truth_switches[i-1])
-                if pre_dist < old_dist or new_dist > old_dist:
+                old_dist = abs(self.switches[matching[index]] - ground_truth_switches[index])
+                if new_dist > old_dist:
                     matching[i] = None
                 else:
-                    matching[i-1] = None
+                    matching[index] = None
                     
 
         print(matching)
