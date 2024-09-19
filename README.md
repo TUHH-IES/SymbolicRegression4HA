@@ -6,6 +6,49 @@ The general flow of hybrid system identification has the following five steps:
 ![image](assets/flow.png)
 This projects is composed of two algorithms which implement the steps *Trace Segmentation* and both *Segment Grouping* and *Mode Characterization*.
 
+## Installation
+
+We recommend to use a virtual environment for the installation of the project. The project is tested with Python 3.12.1.
+
+### Creating a Virtual Environment
+
+To create a virtual environment, run the following command in the project directory:
+
+```bash
+python -m venv venv
+```
+
+### Activating the Virtual Environment
+
+To activate the virtual environment, run the following command in the project directory:
+
+- Linux / WSL:
+```bash
+source venv/bin/activate
+```
+- Windows:
+```bash
+.\venv\Scripts\Activate
+```
+
+### Installing the Dependencies
+
+To install the dependencies, run the following command in the project directory:
+
+```bash
+pip install -e .
+```
+
+### Running an Example
+
+To run an example, run the following command in the project directory:
+
+```bash
+python src/sr4ha/main.py --config <path_to_config_file.yaml>
+```
+
+The configuration files for the existing examples are stored in the `config` directory.
+
 ## Project Structure
 
 The project is structured as follows:

@@ -4,7 +4,7 @@ from collections import deque
 import polars as pl
 import core.processed_data as processed_data
 
-import segmentation_criteria
+import criteria.segmentation_criteria as segmentation_criteria
 
 class Segmentor:
     """

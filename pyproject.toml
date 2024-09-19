@@ -1,19 +1,16 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "sr4ha"
 version = "0.1.0"
 description = "Hybrid System Learning with Symbolic Regression"
 
-[tool.hatch.build.targets.wheel]
-    packages = ["src/sr4ha"]
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 dependencies = [
     "polars",
     "ruamel.yaml",
-    "tikzplotlib",
     "matplotlib",
-    "pysr"
+    "pysr",
+    "optuna"
 ]

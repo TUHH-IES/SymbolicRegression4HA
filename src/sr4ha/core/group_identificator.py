@@ -5,7 +5,7 @@ from statistics import mean
 
 from core.processed_data import GroupedData
 
-import grouping_criteria
+import criteria.grouping_criteria as grouping_criteria
 
 
 class GroupIdentificator:

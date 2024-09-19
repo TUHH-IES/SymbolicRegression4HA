@@ -11,7 +11,7 @@ import core.group_identificator
 def main(path):
     config = YAML(typ="safe").load(path)
     data_frame = pl.read_csv(
-        config["file"], dtypes=[pl.Float64] * len(config["features"])
+        config["file"], schema_overrides=[pl.Float64] * len(config["features"])
     )
     if "derivative" in config and config["derivative"]:
         data_frame = data_frame.with_columns(diff=pl.col(config["target_var"]).diff())
