@@ -74,3 +74,38 @@ The project is part of the publication "Dynamics-Based Identification of Hybrid 
 ```
 
 ## Getting Started
+
+TBD
+
+## Parameter Studies
+
+The directory `src/sr4ha/parameter-studies` contains scripts for parameter studies with [optuna](https://optuna.readthedocs.io/en/stable/) for selected examples. The parameter studies are conducted for the following examples:
+- *Converter*
+- *Two Tank* (with and without feature substitution)
+
+Both parts of the algorithm, i.e., the segmentation and the grouping part, are evaluated. The parameter studies are conducted for the following parameters:
+
+Symbol | Occurrence | Description |
+--- | --- | --- |
+$l_{init}$ | Segmentation | initial window size when learning an expression
+$l_{step}$ | Segmentation | step-width for extending the window
+$n_{init}$ | Segmentation | number of iterations of SR when learning an expression
+$n_{update}$ | Segmentation | number of iterations of SR for updating the expression on an extension
+$\tau$ | Segmentation | threshold for the segmentation criterion
+$\varphi$ | Grouping | relaxation parameter for the grouping criterion
+$n_g$ | Grouping | number of iterations of SR when learning on grouped data
+$\rho_s, \rho_g$ |General | SR Parsimony coefficient (length-accuracy trade-off) for segmentation and grouping
+$p_s, p_g$ | General | SR Population size for segmentation and grouping
+
+For the parameter optimization with optuna, we define two objective functions for the segmentation and grouping part:
+
+$$
+\begin{align}
+    \Omega_{seg}(m,\mathcal{T}_{gt}, \mathcal{T}_{f}) &= \frac{1}{|\mathcal{T}_{f}|}\left(\omega \cdot ||\mathcal{T}_{f}| - |\mathcal{T}_{gt}|| + \sum\limits_{(i,j) \in m, j \neq \emptyset} | \mathcal{T}_{gt}(i) - \mathcal{T}_{f}(j)| \right),\\
+    \Omega_{group}(G_{gt},G_{f}) &= \frac{1+||G_{gt}| - |G_{f}||}{\sum_{g \in G_{f}} size(g)} \cdot \sum\limits_{g \in G_{f}} loss(g) \cdot size(g),
+\end{align}
+$$
+
+where $m$ is a map between ground truth decision points and their closest found decision points or $\emptyset$ of no close decision point is found as illustrated by the following Figure, where the mapping is $m = \{(1,1), (2,2), (3,\emptyset), (4,3), (5,5), (6,6), (7,8)\}$.
+![image](assets/mapping.png)
+$\mathcal{T}_{gt}, \mathcal{T}_{f}$ are vectors of ground truth and found decision points, respectively, while $\omega$ is a penalty factor for missed or additionally found decision points, $G_{gt},G_{f}$ are the ground truth and found groups, respectively. Note, that grouping penalizes a divergence in the number of found and ground truth groups by the factor $1+||G_{gt}| - |G_{f}||$.
