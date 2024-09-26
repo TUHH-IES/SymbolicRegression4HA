@@ -99,13 +99,11 @@ $p_s, p_g$ | General | SR Population size for segmentation and grouping
 
 For the parameter optimization with optuna, we define two objective functions for the segmentation and grouping part:
 
-$$
-\begin{align}
-    \Omega_{seg}(m,\mathcal{T}_{gt}, \mathcal{T}_{f}) &= \frac{1}{|\mathcal{T}_{f}|}\left(\omega \cdot ||\mathcal{T}_{f}| - |\mathcal{T}_{gt}|| + \sum\limits_{(i,j) \in m, j \neq \emptyset} | \mathcal{T}_{gt}(i) - \mathcal{T}_{f}(j)| \right),\\
-    \Omega_{group}(G_{gt},G_{f}) &= \frac{1+||G_{gt}| - |G_{f}||}{\sum_{g \in G_{f}} size(g)} \cdot \sum\limits_{g \in G_{f}} loss(g) \cdot size(g),
-\end{align}
-$$
+$$\Omega_{seg}(m,T_{gt}, T_{f}) = \frac{1}{|T_{f}|}\left(\omega \cdot ||T_{f}| - |T_{gt}|| + \sum_{(i,j) \in m, j \neq \emptyset} | T_{gt}(i) - T_{f}(j)| \right)$$
+
+$$\Omega_{group}(G_{gt},G_{f}) = \frac{1+||G_{gt}| - |G_{f}||}{\sum_{g \in G_{f}} size(g)} \cdot \sum_{g \in G_{f}} loss(g) \cdot size(g)$$
 
 where $m$ is a map between ground truth decision points and their closest found decision points or $\emptyset$ of no close decision point is found as illustrated by the following Figure, where the mapping is $m = \{(1,1), (2,2), (3,\emptyset), (4,3), (5,5), (6,6), (7,8)\}$.
 ![image](assets/mapping.png)
-$\mathcal{T}_{gt}, \mathcal{T}_{f}$ are vectors of ground truth and found decision points, respectively, while $\omega$ is a penalty factor for missed or additionally found decision points, $G_{gt},G_{f}$ are the ground truth and found groups, respectively. Note, that grouping penalizes a divergence in the number of found and ground truth groups by the factor $1+||G_{gt}| - |G_{f}||$.
+
+$T_{gt}, T_{f}$ are vectors of ground truth and found decision points, respectively, while $\omega$ is a penalty factor for missed or additionally found decision points, $G_{gt},G_{f}$ are the ground truth and found groups, respectively. Note, that grouping penalizes a divergence in the number of found and ground truth groups by the factor $1+||G_{gt}| - |G_{f}||$.
