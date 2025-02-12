@@ -81,7 +81,7 @@ class GroupIdentificator:
             print("Current window:", window)
 
             df_window = data_frame.slice(window[0], (window[1] - window[0]))
-            if not group_data.groups:
+            if not group_data._groups:
                 X_train = df_window[self.learner.feature_names]
                 y_train = df_window[target_var]
                 self.learner.fit(X_train, y_train)
@@ -96,9 +96,9 @@ class GroupIdentificator:
                 continue
             else:
                 found_group = False
-                for group in group_data.groups:
+                for group in group_data._groups:
                     print(
-                        "Current group", group.group_id, "of", len(group_data.groups)
+                        "Current group", group.group_id, "of", len(group_data._groups)
                     )
                     self._set_learner_log_file(window, group.group_id)
 

@@ -7,6 +7,9 @@ import time
 import core.group_identificator
 import core.segmentor
 import core.group_identificator
+import core.model_extractor
+
+import core.processed_data
 
 def main(path):
     config = YAML(typ="safe").load(path)
@@ -44,6 +47,22 @@ def main(path):
         file.write("Grouping: " + str(endtime - starttime))
     grouped_data.visualize()
 
+def test_extraction(path):
+    config = YAML(typ="safe").load(path)
+    data_frame = pl.read_csv(
+        config["file"], schema_overrides=[pl.Float64] * len(config["features"])
+    )
+    if "derivative" in config and config["derivative"]:
+        data_frame = data_frame.with_columns(diff=pl.col(config["target_var"]).diff())
+        data_frame[0, "diff"] = data_frame["diff"][1]
+        config["target_var"] = "diff"
+    grouped_results = core.processed_data.GroupedData.from_file(data_frame, "grouping_windows.csv", "grouping_results.csv", config["target_var"])
+
+    model_extractor = core.model_extractor.ModelExtractor(config)
+    model = model_extractor.createDecisionTreeModel(grouped_results)
+    error = model_extractor.evaluateDecisionTreeModel(model, data_frame)
+    print("Error:", error)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -54,4 +73,5 @@ if __name__ == "__main__":
         help="Path to config file",
     )
     arguments = parser.parse_args()
-    main(arguments.config)
+    test_extraction(arguments.config)
+    #main(arguments.config)

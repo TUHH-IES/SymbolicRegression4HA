@@ -15,7 +15,7 @@ def objective(trial: optuna.Trial) -> float:
 
     # Add a penalty for the number of groups
     gt_groups = 3
-    return grouped_data.get_mean_loss() * (1 + abs(len(grouped_data.groups) - gt_groups))
+    return grouped_data.get_mean_loss() * (1 + abs(len(grouped_data._groups) - gt_groups))
 
 if __name__ == "__main__":
 
