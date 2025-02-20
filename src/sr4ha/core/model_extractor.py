@@ -16,7 +16,7 @@ class ModelExtractor:
         self.features = config["features"]
         self.target_var = config["target_var"]
 
-    def createDecisionTreeModel(self, grouped_results: processed_data.GroupedData):
+    def createDecisionTreeModel(self, grouped_results: processed_data.GroupedData, with_prev_id: bool = False):
         """
         Create a model from the grouped results.
 
@@ -43,7 +43,11 @@ class ModelExtractor:
                 data = data.vstack(group_df)
 
         clf = tree.DecisionTreeClassifier()
-        X = data[self.features] #TODO: use also previous mode as feature
+        if with_prev_id:
+            dt_features = self.features + ["prev_id"]
+        else:
+            dt_features = self.features
+        X = data[dt_features] #TODO: use also previous mode as feature
         y = data["group_id"]
         clf.fit(X, y)
         tree.plot_tree(clf)
@@ -61,7 +65,7 @@ class ModelExtractor:
         flows = {group_id: sympy.lambdify(self.features, group.equation, "numpy") for group_id, group in model.groupedData._groups.items()}
 
         # Predict next group
-        predictedModes = model.tree.predict(testData[self.features]) #TODO: correct handling of initial mode -> actually the next mode is predcited
+        predictedModes = model.tree.predict(testData[self.features])
 
         # Use flow functions and predictedModes to predict target value
         prediction = pl.DataFrame().with_columns(
@@ -79,6 +83,37 @@ class ModelExtractor:
 
         return error
 
+    def evaluateWithPrevMode(self, model, testData, initialMode, visualize: bool = True):
+        """
+        Evaluate the model.
 
+        Args:
+            model: The model to evaluate.
+            testData: The data to evaluate the model on.
+        """
+        nextMode = initialMode
+        predictedModes = []
+        for i in range(len(testData)):
+            # Predict next group
+            row = testData[self.features].slice(i, 1).with_columns(pl.Series([nextMode]).alias("prev_id"))
+            dt_features = self.features + ["prev_id"]
+            predictedMode = model.tree.predict(row[dt_features])
+            predictedModes.append(predictedMode[0])
+            nextMode = predictedMode
 
-        
+        flows = {group_id: sympy.lambdify(self.features, group.equation, "numpy") for group_id, group in model.groupedData._groups.items()}
+        # Use flow functions and predictedModes to predict target value
+        prediction = pl.DataFrame().with_columns(
+            pl.Series(
+                [flows[group_id](*testData[self.features][i])[0]
+                 for i, group_id in enumerate(predictedModes)]
+            ).alias(self.target_var))
+        error = metrics.mean_squared_error(testData[self.target_var], prediction[self.target_var])
+
+        if visualize:
+            fig, ax = plt.subplots(1, 1)
+            ax.plot(testData[self.target_var])
+            ax.plot(prediction[self.target_var])
+            plt.show()
+
+        return error
