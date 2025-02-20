@@ -1,5 +1,5 @@
 import polars as pl
-from sklearn.tree import DecisionTreeClassifier
+from sklearn import tree
 from sklearn import metrics
 import sympy
 import matplotlib.pyplot as plt
@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 import core.processed_data as processed_data
 
 class HybridDecisionModel:
-    def __init__(self, tree: DecisionTreeClassifier, groupedData: processed_data.GroupedData):
-        self.tree: DecisionTreeClassifier = tree
+    def __init__(self, tree: tree.DecisionTreeClassifier, groupedData: processed_data.GroupedData):
+        self.tree: tree.DecisionTreeClassifier = tree
         self.groupedData: processed_data.GroupedData = groupedData
 
 class ModelExtractor:
@@ -27,26 +27,26 @@ class ModelExtractor:
             model: The model created from the grouped data.
         """
 
-        # Add current and next group id to the data
+        # Add prev_id as feature
         data = pl.DataFrame()
         for group_id, group in grouped_results._groups.items():
             for window in group.windows:
-                group_df = grouped_results.data.slice(window[0], window[1]-window[0])
+                group_df = grouped_results.data.slice(window[0]+1, window[1]-window[0]+1)
                 group_df = group_df.with_columns(
                     pl.Series([group_id] * len(group_df)).alias("group_id"),
-                    pl.Series([group_id] * len(group_df)).alias("next_id"))
-                if window[1] < len(grouped_results.data): #transition points
-                    window_data = grouped_results.data.slice(window[1],1).with_columns(
+                    pl.Series([group_id] * len(group_df)).alias("prev_id"))
+                if window[0] > 0:
+                    window_data = grouped_results.data.slice(window[0],1).with_columns(
                             pl.Series([group_id] * 1).alias("group_id"),
-                            pl.Series([grouped_results.transitions[window[1]]] * 1).alias("next_id"))
+                            pl.Series([grouped_results.transitions[window[0]]] * 1).alias("prev_id"))
                     group_df = group_df.vstack(window_data)
                 data = data.vstack(group_df)
 
-        clf = DecisionTreeClassifier()
+        clf = tree.DecisionTreeClassifier()
         X = data[self.features] #TODO: use also previous mode as feature
-        y = data["next_id"]
+        y = data["group_id"]
         clf.fit(X, y)
-        print(clf.score(X, y))
+        tree.plot_tree(clf)
         return HybridDecisionModel(clf, grouped_results)
 
     def evaluateDecisionTreeModel(self, model, testData, visualize: bool = True):

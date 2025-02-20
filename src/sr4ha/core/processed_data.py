@@ -90,7 +90,7 @@ class GroupedData:
             print("Error: Group with id", self._nextID, "already exists")
         group = Group(data, equation, [window], loss, segment_losses)
         self._groups[self._nextID] = group
-        self.transitions[window[0]-1] = self._nextID
+        self.transitions[window[1]] = self._nextID
         self._nextID += 1
 
     def add_segment(self, group_id, data, equation, window, loss, segment_loss):
@@ -102,7 +102,7 @@ class GroupedData:
             return
         else:
             self._groups[group_id].append_segment(data, equation, window, loss, segment_loss)
-            self.transitions[window[0]-1] = group_id
+            self.transitions[window[1]] = group_id
 
     def print_groups(self):
         for group_id, group in self._groups.items():
@@ -170,6 +170,6 @@ class GroupedData:
                 if windows["group_id"][j] == raw_groups["group_id"][i]:
                     new_group.windows.append((windows["window_start"][j], windows["window_end"][j]))
                     new_group.data.vstack(data.slice(windows["window_start"][j], windows["window_end"][j]-windows["window_start"][j]+1))
-                    transitions[windows["window_start"][j]] = raw_groups["group_id"][i]
+                    transitions[windows["window_end"][j]] = raw_groups["group_id"][i]
             groups[raw_groups["group_id"][i]] = new_group
         return cls(data, target_var, groups, transitions)
