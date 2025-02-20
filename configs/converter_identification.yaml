@@ -1,4 +1,5 @@
-file: "data/converter/short_wto_zeros_data_converter_omega400e3_beta40e3_Q10_theta60.csv"
+file: "data/converter/learn_data_converter_omega400e3_beta40e3_Q10_theta60.csv"
+eval: "data/converter/eval_data_converter_omega400e3_beta40e3_Q10_theta60.csv"
 features:
   - t
   - w1

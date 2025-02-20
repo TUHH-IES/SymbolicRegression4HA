@@ -52,15 +52,21 @@ def test_extraction(path):
     data_frame = pl.read_csv(
         config["file"], schema_overrides=[pl.Float64] * len(config["features"])
     )
+    eval_data = pl.read_csv(
+        config["eval"], schema_overrides=[pl.Float64] * len(config["features"])
+    )
+    
     if "derivative" in config and config["derivative"]:
         data_frame = data_frame.with_columns(diff=pl.col(config["target_var"]).diff())
         data_frame[0, "diff"] = data_frame["diff"][1]
+        eval_data = eval_data.with_columns(diff=pl.col(config["target_var"]).diff())
+        eval_data[0, "diff"] = eval_data["diff"][1]
         config["target_var"] = "diff"
     grouped_results = core.processed_data.GroupedData.from_file(data_frame, "grouping_windows.csv", "grouping_results.csv", config["target_var"])
 
     model_extractor = core.model_extractor.ModelExtractor(config)
     model = model_extractor.createDecisionTreeModel(grouped_results)
-    error = model_extractor.evaluateDecisionTreeModel(model, data_frame)
+    error = model_extractor.evaluateDecisionTreeModel(model, eval_data)
     print("Error:", error)
 
 
