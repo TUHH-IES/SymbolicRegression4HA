@@ -73,7 +73,7 @@ class Group:
         self.segment_losses.append(segment_loss)    
 
 class GroupedData:
-    def __init__(self, data: pl.DataFrame, target_var: str, groups: Dict[int, Group] = {}, transitions: Dict[int, int] = {}):
+    def __init__(self, data: pl.DataFrame, target_var: str, groups: Dict[int, Group] = dict(), transitions: Dict[int, int] = dict()):
         self.data: pl.DataFrame = data
         self._groups: Dict[int, Group] = groups
         self.target_var: str = target_var
@@ -86,7 +86,7 @@ class GroupedData:
         and add it to the list of groups
         add the transition from the previous window to the new group
         '''
-        if self._groups[self._nextID]:
+        if self._nextID in self._groups:
             print("Error: Group with id", self._nextID, "already exists")
         group = Group(data, equation, [window], loss, segment_losses)
         self._groups[self._nextID] = group
@@ -139,7 +139,7 @@ class GroupedData:
 
     def write_windows_csv(self, path):
         data = pl.DataFrame({
-            "group_id": self._groups.keys(),
+            "group_id": [group_id for group_id, group in self._groups.items() for window in group.windows],
             "window_start": [window[0] for group in self._groups.values() for window in group.windows],
             "window_end": [window[1] for group in self._groups.values() for window in group.windows],
         })

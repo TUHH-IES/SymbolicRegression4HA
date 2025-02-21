@@ -52,7 +52,7 @@ def main(path):
 
     print("Time for grouping:", endtime - starttime)
     with open("global_results.txt", "a") as file:
-        file.write("Grouping Time: " + str(endtime - starttime))
+        file.write("Grouping Time: " + str(endtime - starttime) + "\n")
     grouped_data.visualize()
 
     # Model Construction
@@ -60,21 +60,21 @@ def main(path):
     starttime = time.time()
     model = model_extractor.createDecisionTreeModel(grouped_data)
     endtime = time.time()
-    print("Time for grouping:", endtime - starttime)
+    print("Time for extraction:", endtime - starttime)
     with open("global_results.txt", "a") as file:
-        file.write("Extraction Time: " + str(endtime - starttime))
+        file.write("Extraction Time: " + str(endtime - starttime) + "\n")
 
     starttime = time.time()
     error, transitions = model_extractor.evaluateDecisionTreeModel(model, eval_data)
     endtime = time.time()
-    print("Time for grouping:", endtime - starttime)
+    print("Time for prediction:", endtime - starttime)
     with open("global_results.txt", "a") as file:
         file.write("Evaluation Time: " + str(endtime - starttime))
     print("Mean Squared Error:", error)
     deviation = core.processed_data.get_transition_deviation(transitions, config["gt-eval"])
     with open("global_results.txt", "a") as file:
-        file.write("Mean Squared Error: " + str(error))
-        file.write("Transition Deviation: " + str(deviation))
+        file.write("Mean Squared Error: " + str(error) + "\n")
+        file.write("Transition Deviation: " + str(deviation) + "\n")
 
 def test_extraction(path):
     config = YAML(typ="safe").load(path)

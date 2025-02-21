@@ -7,9 +7,9 @@ features:
   - w1
   - w2
 
-start_width: 308
-step_width: 178
-step_iterations: 57
+start_width: 100
+step_width: 20
+step_iterations: 20
 file_prefix: "converter"
 hist_length: 5
 
@@ -17,15 +17,15 @@ segmentation:
   criterion: 
     name: "decrease"
     kwargs:
-      saturation: 7.490586542529826e-07
+      saturation: 1e-6
   kwargs:
-    niterations: 171
+    niterations: 100
     verbosity: 0
     random_state: 42
     deterministic: true
     procs: 0
     multithreading: false
-    parsimony: 0.19469390698417638
+    parsimony: 0.0032
     binary_operators:
       - "-"
       - "+"
@@ -38,12 +38,12 @@ grouping:
   criterion:
     name: "preserving_group_loss"
     kwargs:
-      factor: 0.6476625723597814
+      factor: 0.65
   kwargs:
-    niterations: 274
-    populations: 24
+    niterations: 270
+    populations: 20
     verbosity: 0
-    parsimony: 0.8649621006819818
+    parsimony: 0.865
     random_state: 42
     deterministic: true
     procs: 0
