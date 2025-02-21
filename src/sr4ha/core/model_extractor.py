@@ -47,10 +47,11 @@ class ModelExtractor:
             dt_features = self.features + ["prev_id"]
         else:
             dt_features = self.features
-        X = data[dt_features] #TODO: use also previous mode as feature
+        X = data[dt_features]
         y = data["group_id"]
         clf.fit(X, y)
-        tree.plot_tree(clf)
+        tree.export_graphviz(clf, out_file="tree.dot", feature_names=dt_features)
+        tree.plot_tree(clf, feature_names=dt_features)
         return HybridDecisionModel(clf, grouped_results)
 
     def evaluateDecisionTreeModel(self, model, testData, visualize: bool = True):
@@ -67,6 +68,12 @@ class ModelExtractor:
         # Predict next group
         predictedModes = model.tree.predict(testData[self.features])
 
+        # Find transitions between modes
+        transitions = [0]
+        for i in range(1, len(predictedModes)):
+            if (predictedModes[i-1] != predictedModes[i]):
+                transitions.append(i)
+
         # Use flow functions and predictedModes to predict target value
         prediction = pl.DataFrame().with_columns(
             pl.Series(
@@ -74,6 +81,7 @@ class ModelExtractor:
                  for i, group_id in enumerate(predictedModes)]
             ).alias(self.target_var))
         error = metrics.mean_squared_error(testData[self.target_var], prediction[self.target_var])
+        #TODO: make error type configurable
 
         if visualize:
             fig, ax = plt.subplots(1, 1)
@@ -81,7 +89,7 @@ class ModelExtractor:
             ax.plot(prediction[self.target_var])
             plt.show()
 
-        return error
+        return error, transitions
 
     def evaluateWithPrevMode(self, model, testData, initialMode, visualize: bool = True):
         """

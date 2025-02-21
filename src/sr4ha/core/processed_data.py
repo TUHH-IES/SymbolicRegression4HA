@@ -4,6 +4,33 @@ import matplotlib.pyplot as plt
 import sympy
 import csv
 
+def get_transition_deviation(switches, file, length_penalty=100):
+    with open(file, 'r') as file:
+        reader = csv.reader(file)
+        ground_truth_switches = [float(row[0]) for row in reader]
+
+    deviation = 0
+    deviation += length_penalty*abs(len(ground_truth_switches) - len(switches))
+    matching = [None] * len(ground_truth_switches)
+    for i in range(len(ground_truth_switches)):
+        matching[i] = min(range(len(switches)), key=lambda x: abs(switches[x] - ground_truth_switches[i]))
+        if matching[i] in matching[:i]:
+            index = matching[:i].index(matching[i])
+            new_dist = abs(switches[matching[i]] - ground_truth_switches[i])
+            old_dist = abs(switches[matching[index]] - ground_truth_switches[index])
+            if new_dist > old_dist:
+                matching[i] = None
+            else:
+                matching[index] = None
+                
+
+    print(matching)
+    for i in range(len(matching)):
+        if matching[i] is not None:
+            deviation += abs(switches[matching[i]] - ground_truth_switches[i]) / len(switches)
+
+    return deviation
+
 class SegmentedData:
     def __init__(self, data: pl.DataFrame, segments: pl.DataFrame, switches, target_var):
         self.data = data
@@ -29,33 +56,6 @@ class SegmentedData:
 
     def write_switches_csv(self, path):
         pl.DataFrame(self.switches).write_csv(path)
-
-    def get_segmentation_deviation(self, file, length_penalty=100):
-        with open(file, 'r') as file:
-            reader = csv.reader(file)
-            ground_truth_switches = [float(row[0]) for row in reader]
-
-        deviation = 0
-        deviation += length_penalty*abs(len(ground_truth_switches) - len(self.switches))
-        matching = [None] * len(ground_truth_switches)
-        for i in range(len(ground_truth_switches)):
-            matching[i] = min(range(len(self.switches)), key=lambda x: abs(self.switches[x] - ground_truth_switches[i]))
-            if matching[i] in matching[:i]:
-                index = matching[:i].index(matching[i])
-                new_dist = abs(self.switches[matching[i]] - ground_truth_switches[i])
-                old_dist = abs(self.switches[matching[index]] - ground_truth_switches[index])
-                if new_dist > old_dist:
-                    matching[i] = None
-                else:
-                    matching[index] = None
-                    
-
-        print(matching)
-        for i in range(len(matching)):
-            if matching[i] is not None:
-                deviation += abs(self.switches[matching[i]] - ground_truth_switches[i]) / len(self.switches)
-
-        return deviation
 
 class Group:
     def __init__(self, data: pl.DataFrame, equation, windows, loss, segment_losses):

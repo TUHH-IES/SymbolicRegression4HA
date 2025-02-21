@@ -6,9 +6,9 @@ features:
   - A1
   - Cvb
 
-start_width: 50
-step_width: 10
-step_iterations: 5
+start_width: 62
+step_width: 47
+step_iterations: 71
 file_prefix: "two-tank-nsub"
 hist_length: 5
 
@@ -16,12 +16,12 @@ segmentation:
   criterion: 
     name: "decrease"
     kwargs:
-      saturation: 1e-6
+      saturation: 8.752605317897294e-09
   kwargs:
-    niterations: 200
+    niterations: 228
     verbosity: 0
     complexity_of_constants: 10
-    parsimony: 0.11
+    parsimony: 0.43910625062004516
     random_state: 42
     deterministic: true
     procs: 0
@@ -38,17 +38,17 @@ grouping:
   criterion:
     name: "preserving_group_loss"
     kwargs:
-      factor: 1.25
+      factor: 0.7198352525294622
   kwargs:
-    niterations: 100
+    niterations: 195
     verbosity: 0
     random_state: 42
     deterministic: true
     procs: 0
     multithreading: false
     complexity_of_constants: 10
-    parsimony: 0.85
-    populations: 40
+    parsimony: 0.7441674257647625
+    populations: 18
     binary_operators:
       - "-"
       - "+"

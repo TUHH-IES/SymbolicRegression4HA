@@ -16,9 +16,14 @@ def main(path):
     data_frame = pl.read_csv(
         config["file"], schema_overrides=[pl.Float64] * len(config["features"])
     )
+    eval_data = pl.read_csv(
+        config["eval"], schema_overrides=[pl.Float64] * len(config["features"])
+    )
     if "derivative" in config and config["derivative"]:
         data_frame = data_frame.with_columns(diff=pl.col(config["target_var"]).diff())
         data_frame[0, "diff"] = data_frame["diff"][1]
+        eval_data = eval_data.with_columns(diff=pl.col(config["target_var"]).diff())
+        eval_data[0, "diff"] = eval_data["diff"][1]
         config["target_var"] = "diff"
 
     # Segmentation
@@ -28,11 +33,14 @@ def main(path):
     endtime = time.time()
     segmented_data.write_segments_csv("segmentation_results.csv")
     segmented_data.write_switches_csv("switches.csv")
+    deviation = core.processed_data.get_transition_deviation(segmented_data.switches, config["gt-learn"])
+    with open("global_results.txt", "w") as file:
+        file.write("Segmentation Deviation: " + str(deviation) + "\n")
     segmented_data.visualize()
 
     print("Time for segmentation:", endtime - starttime)
-    with open("time.txt", "w") as file:
-        file.write("Segmentation: " + str(endtime - starttime) + "\n")
+    with open("global_results.txt", "w") as file:
+        file.write("Segmentation Time: " + str(endtime - starttime) + "\n")
 
     # Grouping
     group_identificator = core.group_identificator.GroupIdentificator(config)
@@ -43,9 +51,30 @@ def main(path):
     grouped_data.write_windows_csv("grouping_windows.csv")
 
     print("Time for grouping:", endtime - starttime)
-    with open("time.txt", "a") as file:
-        file.write("Grouping: " + str(endtime - starttime))
+    with open("global_results.txt", "a") as file:
+        file.write("Grouping Time: " + str(endtime - starttime))
     grouped_data.visualize()
+
+    # Model Construction
+    model_extractor = core.model_extractor.ModelExtractor(config)
+    starttime = time.time()
+    model = model_extractor.createDecisionTreeModel(grouped_data)
+    endtime = time.time()
+    print("Time for grouping:", endtime - starttime)
+    with open("global_results.txt", "a") as file:
+        file.write("Extraction Time: " + str(endtime - starttime))
+
+    starttime = time.time()
+    error, transitions = model_extractor.evaluateDecisionTreeModel(model, eval_data)
+    endtime = time.time()
+    print("Time for grouping:", endtime - starttime)
+    with open("global_results.txt", "a") as file:
+        file.write("Evaluation Time: " + str(endtime - starttime))
+    print("Mean Squared Error:", error)
+    deviation = core.processed_data.get_transition_deviation(transitions, config["gt-eval"])
+    with open("global_results.txt", "a") as file:
+        file.write("Mean Squared Error: " + str(error))
+        file.write("Transition Deviation: " + str(deviation))
 
 def test_extraction(path):
     config = YAML(typ="safe").load(path)
@@ -79,5 +108,5 @@ if __name__ == "__main__":
         help="Path to config file",
     )
     arguments = parser.parse_args()
-    test_extraction(arguments.config)
-    #main(arguments.config)
+    #test_extraction(arguments.config)
+    main(arguments.config)

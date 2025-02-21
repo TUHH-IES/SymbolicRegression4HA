@@ -1,13 +1,15 @@
 file: "data/converter/learn_data_converter_omega400e3_beta40e3_Q10_theta60.csv"
 eval: "data/converter/eval_data_converter_omega400e3_beta40e3_Q10_theta60.csv"
+gt-learn: "results/converter/gt_switches.csv"
+gt-eval: "results/converter/gt_eval.csv"
 features:
   - t
   - w1
   - w2
 
-start_width: 100
-step_width: 20
-step_iterations: 20
+start_width: 308
+step_width: 178
+step_iterations: 57
 file_prefix: "converter"
 hist_length: 5
 
@@ -15,15 +17,15 @@ segmentation:
   criterion: 
     name: "decrease"
     kwargs:
-      saturation: 1e-6
+      saturation: 7.490586542529826e-07
   kwargs:
-    niterations: 100
+    niterations: 171
     verbosity: 0
     random_state: 42
     deterministic: true
     procs: 0
     multithreading: false
-    parsimony: 0.0032
+    parsimony: 0.19469390698417638
     binary_operators:
       - "-"
       - "+"
@@ -36,11 +38,12 @@ grouping:
   criterion:
     name: "preserving_group_loss"
     kwargs:
-      factor: 1
+      factor: 0.6476625723597814
   kwargs:
-    niterations: 20
-    populations: 15
+    niterations: 274
+    populations: 24
     verbosity: 0
+    parsimony: 0.8649621006819818
     random_state: 42
     deterministic: true
     procs: 0

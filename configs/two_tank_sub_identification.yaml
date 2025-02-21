@@ -7,9 +7,9 @@ features:
   - Cvb
   - sumsqrt
 
-start_width: 50
-step_width: 10
-step_iterations: 5
+start_width: 41
+step_width: 1
+step_iterations: 29
 file_prefix: "two-tank-sub"
 hist_length: 5
 
@@ -17,12 +17,12 @@ segmentation:
   criterion: 
     name: "decrease"
     kwargs:
-      saturation: 1e-7
+      saturation: 1.2842316619362689e-08
   kwargs:
-    niterations: 40
+    niterations: 156
     verbosity: 0
     complexity_of_constants: 10
-    parsimony: 1e-6
+    parsimony: 0.7627879195993068
     random_state: 42
     deterministic: true
     procs: 0
@@ -38,9 +38,9 @@ grouping:
   criterion:
     name: "preserving_group_loss"
     kwargs:
-      factor: 1.6
+      factor: 0.7910069852843661
   kwargs:
-    niterations: 8
+    niterations: 204
     verbosity: 0
     random_state: 42
     deterministic: true
@@ -48,7 +48,7 @@ grouping:
     populations: 15
     multithreading: false
     complexity_of_constants: 10
-    parsimony: 1e-8
+    parsimony: 0.44838474380558097
     binary_operators:
       - "-"
       - "+"
