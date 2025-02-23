@@ -48,17 +48,17 @@ grouping:
   criterion:
     name: "preserving_group_loss"
     kwargs:
-      factor: 0.72
+      factor: 1.25
   kwargs:
-    niterations: 190
+    niterations: 100
     verbosity: 0
     random_state: 42
     deterministic: true
     procs: 0
     multithreading: false
     complexity_of_constants: 10
-    parsimony: 0.74
-    populations: 15
+    parsimony: 0.85
+    populations: 40
     binary_operators:
       - "-"
       - "+"
