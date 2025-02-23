@@ -16,9 +16,9 @@ dt-features:
   - Cvb
   - mUb
 
-start_width: 60
-step_width: 50
-step_iterations: 7
+start_width: 50
+step_width: 10
+step_iterations: 5
 file_prefix: "two-tank-nsub"
 hist_length: 5
 
@@ -26,12 +26,12 @@ segmentation:
   criterion: 
     name: "decrease"
     kwargs:
-      saturation: 8.75e-9
+      saturation: 1e-6
   kwargs:
-    niterations: 225
+    niterations: 200
     verbosity: 0
     complexity_of_constants: 10
-    parsimony: 0.44
+    parsimony: 0.11
     random_state: 42
     deterministic: true
     procs: 0

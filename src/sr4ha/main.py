@@ -109,5 +109,5 @@ if __name__ == "__main__":
         help="Path to config file",
     )
     arguments = parser.parse_args()
-    test_extraction(arguments.config)
-    #main(arguments.config)
+    #test_extraction(arguments.config)
+    main(arguments.config)

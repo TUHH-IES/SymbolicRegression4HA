@@ -67,7 +67,7 @@ class ModelExtractor:
         flows = {group_id: sympy.lambdify(self.features, group.equation, "numpy") for group_id, group in model.groupedData._groups.items()}
 
         # Predict next group
-        predictedModes = model.tree.predict(testData[self.features])
+        predictedModes = model.tree.predict(testData[self.dt_features])
 
         # Find transitions between modes
         transitions = [0]
@@ -91,7 +91,7 @@ class ModelExtractor:
 
             import tikzplotlib
             tikzplotlib.save("trace-comparison.tex")
-            
+
             plt.show()
 
         return error, transitions
