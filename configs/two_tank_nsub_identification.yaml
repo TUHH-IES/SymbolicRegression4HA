@@ -1,10 +1,20 @@
 file: "data/twotank/data_withsubst.csv"
+eval: "data/twotank/eval_twotank_withsubst.csv"
+gt-learn: "results/two_tank/gt_switches.csv"
+gt-eval: "results/two_tank/gt_eval.csv"
 features:
   - mQp
   - y1
   - y2
   - A1
   - Cvb
+dt-features:
+  - mQp
+  - y1
+  - y2
+  - A1
+  - Cvb
+  - mUb
 
 start_width: 60
 step_width: 50

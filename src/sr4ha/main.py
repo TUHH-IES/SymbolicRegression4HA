@@ -39,7 +39,7 @@ def main(path):
     segmented_data.visualize()
 
     print("Time for segmentation:", endtime - starttime)
-    with open("global_results.txt", "w") as file:
+    with open("global_results.txt", "a") as file:
         file.write("Segmentation Time: " + str(endtime - starttime) + "\n")
 
     # Grouping
@@ -69,7 +69,7 @@ def main(path):
     endtime = time.time()
     print("Time for prediction:", endtime - starttime)
     with open("global_results.txt", "a") as file:
-        file.write("Evaluation Time: " + str(endtime - starttime))
+        file.write("Evaluation Time: " + str(endtime - starttime) + "\n")
     print("Mean Squared Error:", error)
     deviation = core.processed_data.get_transition_deviation(transitions, config["gt-eval"])
     with open("global_results.txt", "a") as file:
@@ -95,8 +95,9 @@ def test_extraction(path):
 
     model_extractor = core.model_extractor.ModelExtractor(config)
     model = model_extractor.createDecisionTreeModel(grouped_results)
-    error = model_extractor.evaluateDecisionTreeModel(model, eval_data)
+    error, transitions = model_extractor.evaluateDecisionTreeModel(model, eval_data)
     print("Error:", error)
+    print("Transitions:", transitions)
 
 
 if __name__ == "__main__":
@@ -108,5 +109,5 @@ if __name__ == "__main__":
         help="Path to config file",
     )
     arguments = parser.parse_args()
-    #test_extraction(arguments.config)
-    main(arguments.config)
+    test_extraction(arguments.config)
+    #main(arguments.config)

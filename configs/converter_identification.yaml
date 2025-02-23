@@ -6,6 +6,10 @@ features:
   - t
   - w1
   - w2
+dt-features:
+  - t
+  - w1
+  - w2
 
 start_width: 100
 step_width: 20

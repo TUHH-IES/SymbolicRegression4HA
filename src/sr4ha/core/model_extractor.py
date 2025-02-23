@@ -14,6 +14,7 @@ class HybridDecisionModel:
 class ModelExtractor:
     def __init__(self, config):
         self.features = config["features"]
+        self.dt_features = config["dt-features"]
         self.target_var = config["target_var"]
 
     def createDecisionTreeModel(self, grouped_results: processed_data.GroupedData, with_prev_id: bool = False):
@@ -44,9 +45,9 @@ class ModelExtractor:
 
         clf = tree.DecisionTreeClassifier()
         if with_prev_id:
-            dt_features = self.features + ["prev_id"]
+            dt_features = self.dt_features + ["prev_id"]
         else:
-            dt_features = self.features
+            dt_features = self.dt_features
         X = data[dt_features]
         y = data["group_id"]
         clf.fit(X, y)
@@ -87,6 +88,10 @@ class ModelExtractor:
             fig, ax = plt.subplots(1, 1)
             ax.plot(testData[self.target_var])
             ax.plot(prediction[self.target_var])
+
+            import tikzplotlib
+            tikzplotlib.save("trace-comparison.tex")
+            
             plt.show()
 
         return error, transitions
@@ -103,8 +108,8 @@ class ModelExtractor:
         predictedModes = []
         for i in range(len(testData)):
             # Predict next group
-            row = testData[self.features].slice(i, 1).with_columns(pl.Series([nextMode]).alias("prev_id"))
-            dt_features = self.features + ["prev_id"]
+            row = testData[self.dt_features].slice(i, 1).with_columns(pl.Series([nextMode]).alias("prev_id"))
+            dt_features = self.dt_features + ["prev_id"]
             predictedMode = model.tree.predict(row[dt_features])
             predictedModes.append(predictedMode[0])
             nextMode = predictedMode
