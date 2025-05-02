@@ -11,7 +11,7 @@ def get_transition_deviation(switches, file, length_penalty=100):
 
     print(ground_truth_switches)
     print(switches)
-    deviation = 0
+    deviation = 0.0
     deviation += length_penalty*abs(len(ground_truth_switches) - len(switches))
     matching = [None] * len(ground_truth_switches)
     for i in range(len(ground_truth_switches)):

@@ -1,10 +1,9 @@
 from functools import partial
-from pysr import PySRRegressor
-from collections import deque
 import polars as pl
 import core.processed_data as processed_data
 
 import criteria.segmentation_criteria as segmentation_criteria
+from learner.learner import Learner
 
 class Segmentor:
     """
@@ -30,21 +29,13 @@ class Segmentor:
     def __init__(self, config):
         self.start_width = config["start_width"]
         self.step_width = config["step_width"]
-        self.step_iterations = config["step_iterations"]
-        self.init_iterations = config["segmentation"]["kwargs"]["niterations"]
-        self.hist_length = config["hist_length"]
         self.criterion = getattr(segmentation_criteria, config["segmentation"]["criterion"]["name"])
         if "kwargs" in config["segmentation"]["criterion"]:
             self.criterion = partial(self.criterion, **config["segmentation"]["criterion"]["kwargs"])
-        if "selection" not in config:
-            config["selection"] = "loss"
-        self.selection = config["selection"]
-        self.learner = PySRRegressor(**config["segmentation"].get("kwargs", {}))
-        self.learner.feature_names = config["features"]
-        self.file_prefix = config["file_prefix"]
-        self.target_var = config["target_var"]
+        self.target = config["target_var"]
+        self.inputs = config["features"]
 
-    def segment(self, data_frame):
+    def segment(self, data_frame: pl.DataFrame, learner: Learner):
         """
         Perform segmentation on the given data frame.
 
@@ -55,75 +46,38 @@ class Segmentor:
             segmented_results (segmented_data.SegmentedData): The segmented data
 
         """
-        fitness_hist = deque([], self.hist_length)
-        switches = [0]
-        window = [0, self.start_width - self.step_width]
-        segments = pl.DataFrame({
-            "window_start": pl.Series(dtype=pl.Int64, values=[]),
-            "window_end": pl.Series(dtype=pl.Int64, values=[]),
-            "extensions": pl.Series(dtype=pl.Int64, values=[]),
-            "equation": pl.Series(dtype=pl.Utf8, values=[]),
-            self.selection: pl.Series(dtype=pl.Float64, values=[])
-        })
+        window_size = self.start_width - self.step_width - self.step_width
+        error = 0.0
+        while self.criterion(error) and window_size < len(data_frame):
+            window_size += self.step_width
+            segment = data_frame.slice(0, window_size)
 
-        while window[1] < len(data_frame):
-            self.learner.warm_start = False
-            fitness_hist = deque([], self.hist_length)
-            extension = 0
-            while len(fitness_hist) < 2 or (
-                self.criterion(fitness_hist) and window[1] < len(data_frame)
-            ):
-                self.learner.equation_file = (
-                    "./equations/"
-                    + self.file_prefix
-                    + "_win"
-                    + str(len(switches))
-                    + "_ext"
-                    + str(extension)
-                    + ".csv"
-                )
-                if hasattr(self.learner, "equations_"):
-                    best_equation = self.learner.sympy()
-                window[1] += self.step_width
-                window[1] = min(window[1], len(data_frame))
-
-                print(window)
-                current_frame = data_frame.slice(window[0], (window[1] - window[0]))
-
-                X_train = current_frame[self.learner.feature_names]
-                y_train = current_frame[self.target_var]
-                self.learner.fit(X_train, y_train)
-                fitness_hist.append(self.learner.get_best()[self.selection])
-                self.learner.warm_start = True
-                self.learner.niterations = self.step_iterations
-                extension = extension + 1
-
-            if(window[1] >= len(data_frame)):
-                result_row = pl.DataFrame({
-                    "window_start": [window[0]],
-                    "window_end": [len(data_frame)],
-                    "extensions": [extension],
-                    "equation": [str(best_equation)],
-                    self.selection: [self.learner.get_best()[self.selection]]
-                })
-                segments = segments.vstack(result_row)
-                break
-
-            window_end = window[1] - self.step_width
-            result_row = pl.DataFrame({
-                "window_start": [window[0]],
-                "window_end": [window_end],
-                "extensions": [extension - 1],
-                "equation": [str(best_equation)],
-                self.selection: [self.learner.get_best()[self.selection]]
-            })
-            segments = segments.vstack(result_row)
-            switches.append(window_end)
-
-            window[0] = window[1] - self.step_width
-            window[1] = min(window[0] + self.start_width - self.step_width, len(data_frame))
-            self.learner.niterations = self.init_iterations
-
-        segmented_results = processed_data.SegmentedData(data_frame, segments, switches, self.target_var)
+            function = learner.learnFlowFunction(segment, self.inputs, self.target)
         
-        return segmented_results
+        return function, window_size
+
+def buildRemainingTraces(
+        traces: list[pl.DataFrame],
+        accurate_segments: list[tuple[int,int]],
+) -> list[pl.DataFrame]:
+    """
+    Build the remaining traces from the accurate segments.
+
+    Args:
+        traces (list[DataFrame]): The list of traces.
+        accurate_segments (list[DataFrame]): The list of accurate segments.
+
+    Returns:
+        list[DataFrame]: The list of remaining traces.
+    """
+    remaining_traces = []
+    for trace in traces:
+        remaining_trace = trace
+        for segment in accurate_segments:
+            start, end = segment
+            remaining_trace = remaining_trace.slice(0, start).append(remaining_trace.slice(end + 1))
+        remaining_traces.append(remaining_trace)
+    # Remove empty traces
+    remaining_traces = [trace for trace in remaining_traces if len(trace) > 0]
+        
+    return remaining_traces
