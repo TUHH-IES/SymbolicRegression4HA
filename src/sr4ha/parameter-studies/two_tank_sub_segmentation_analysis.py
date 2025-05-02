@@ -2,6 +2,8 @@ import optuna
 from pathlib import Path
 from ruamel.yaml import YAML
 
+from src.sr4ha.core.processed_data import get_transition_deviation
+
 import experiment_segmentation
 
 def objective(trial: optuna.Trial) -> float:
@@ -16,7 +18,7 @@ def objective(trial: optuna.Trial) -> float:
     trial.set_user_attr("segments", segmented_data.segments.write_json())
     trial.set_user_attr("switches", segmented_data.switches)
 
-    return segmented_data.get_segmentation_deviation("results/two_tank/gt_switches.csv")
+    return get_transition_deviation(segmented_data.switches, "results/two_tank/gt_switches.csv")
 
 if __name__ == "__main__":
 

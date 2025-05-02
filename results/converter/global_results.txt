@@ -1,0 +1,7 @@
+Segmentation Deviation: 2.8
+Segmentation Time: 886.8733863830566
+Grouping Time: 988.3772103786469
+Extraction Time: 0.28470373153686523
+Evaluation Time: 61.70196604728699
+Mean Squared Error: 6.717556962938233e-07
+Transition Deviation: 202.33333333333334

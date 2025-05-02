@@ -1,4 +1,7 @@
 file: "data/twotank/data_withsubst.csv"
+eval: "data/twotank/eval_twotank_withsubst.csv"
+gt-learn: "results/two_tank/gt_switches.csv"
+gt-eval: "results/two_tank/gt_eval.csv"
 features:
   - mQp
   - y1
@@ -6,10 +9,18 @@ features:
   - A1
   - Cvb
   - sumsqrt
+dt-features:
+  - mQp
+  - y1
+  - y2
+  - A1
+  - Cvb
+  - sumsqrt
+  - mUb
 
-start_width: 50
-step_width: 10
-step_iterations: 5
+start_width: 40
+step_width: 1
+step_iterations: 25
 file_prefix: "two-tank-sub"
 hist_length: 5
 
@@ -17,12 +28,12 @@ segmentation:
   criterion: 
     name: "decrease"
     kwargs:
-      saturation: 1e-7
+      saturation: 1.28e-8
   kwargs:
-    niterations: 40
+    niterations: 150
     verbosity: 0
     complexity_of_constants: 10
-    parsimony: 1e-6
+    parsimony: 0.76
     random_state: 42
     deterministic: true
     procs: 0
@@ -38,9 +49,9 @@ grouping:
   criterion:
     name: "preserving_group_loss"
     kwargs:
-      factor: 1.6
+      factor: 0.79
   kwargs:
-    niterations: 8
+    niterations: 200
     verbosity: 0
     random_state: 42
     deterministic: true
@@ -48,7 +59,7 @@ grouping:
     populations: 15
     multithreading: false
     complexity_of_constants: 10
-    parsimony: 1e-8
+    parsimony: 0.45
     binary_operators:
       - "-"
       - "+"

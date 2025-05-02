@@ -74,14 +74,14 @@ class GroupIdentificator:
         data_frame = segmented_results.data
         target_var = segmented_results.target_var
 
-        group_data = GroupedData(data_frame, target_var, groups=[])
+        group_data = GroupedData(data_frame, target_var)
         for segment in segments.iter_rows(named=True):
             window = [segment["window_start"], segment["window_end"]]
             curr_segment_loss = segment[self.selection]
             print("Current window:", window)
 
             df_window = data_frame.slice(window[0], (window[1] - window[0]))
-            if not group_data.groups:
+            if not group_data._groups:
                 X_train = df_window[self.learner.feature_names]
                 y_train = df_window[target_var]
                 self.learner.fit(X_train, y_train)
@@ -96,11 +96,11 @@ class GroupIdentificator:
                 continue
             else:
                 found_group = False
-                for group in group_data.groups:
+                for group_id, group in group_data._groups.items():
                     print(
-                        "Current group", group.group_id, "of", len(group_data.groups)
+                        "Current group", group_id, "of", len(group_data._groups)
                     )
-                    self._set_learner_log_file(window, group.group_id)
+                    self._set_learner_log_file(window, group_id)
 
                     concatenation = pl.concat([group.data, df_window])
                     X_train = concatenation[self.learner.feature_names]
@@ -112,9 +112,9 @@ class GroupIdentificator:
                         mean(group.segment_losses),  # todo: weighted by segment length?
                         loss,
                     ):
-                        print("group", window, "into", group.group_id)
-                        group.append_segment(
-                            df_window, equation, window, loss, curr_segment_loss
+                        print("group", window, "into", group_id)
+                        group_data.add_segment(
+                            group_id, df_window, equation, window, loss, curr_segment_loss
                         )
                         found_group = True
                         break

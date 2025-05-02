@@ -1,5 +1,12 @@
-file: "data/converter/short_wto_zeros_data_converter_omega400e3_beta40e3_Q10_theta60.csv"
+file: "data/converter/learn_data_converter_omega400e3_beta40e3_Q10_theta60.csv"
+eval: "data/converter/eval_data_converter_omega400e3_beta40e3_Q10_theta60.csv"
+gt-learn: "results/converter/gt_switches.csv"
+gt-eval: "results/converter/gt_eval.csv"
 features:
+  - t
+  - w1
+  - w2
+dt-features:
   - t
   - w1
   - w2
@@ -35,11 +42,12 @@ grouping:
   criterion:
     name: "preserving_group_loss"
     kwargs:
-      factor: 1
+      factor: 0.65
   kwargs:
-    niterations: 20
-    populations: 15
+    niterations: 270
+    populations: 20
     verbosity: 0
+    parsimony: 0.865
     random_state: 42
     deterministic: true
     procs: 0
