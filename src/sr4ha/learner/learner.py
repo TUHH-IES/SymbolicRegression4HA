@@ -1,7 +1,7 @@
 
 from abc import ABC, abstractmethod
 
-from polars import DataFrame
+from polars import DataFrame, concat
 
 
 class Learner(ABC):
@@ -46,6 +46,16 @@ class Model(ABC):
         """
         pass
 
+    @abstractmethod
+    def to_string(self) -> str:
+        """
+        Convert the model to a string representation.
+
+        Returns:
+            str: The string representation of the model.
+        """
+        pass
+
 
 def getAccurateSegments(
         traces: list[DataFrame],
@@ -78,11 +88,11 @@ def getAccurateSegments(
         if start is not None:
             local_segments.append((start, len(errors) - 1))  # Handle last interval
             all_accurate_data.append(trace[start:len(errors)])  # Collect data for the last segment
-
         accurate_segments.append(local_segments)
 
     # Combine all accurate data into a single DataFrame
-    combined_accurate_data = DataFrame.vstack(all_accurate_data) if all_accurate_data else DataFrame()
+    combined_accurate_data = concat(all_accurate_data, how="vertical")
+
 
     return accurate_segments, combined_accurate_data
         

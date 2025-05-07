@@ -28,6 +28,15 @@ class LinearModel(Model):
             DataFrame: The predicted output.
         """
         return self.model.predict(data)
+    
+    def to_string(self):
+        """
+        Convert the model to a string representation.
+
+        Returns:
+            str: The string representation of the model.
+        """
+        return f"Linear Model - Coefficients: {self.model.coef_}, Intercept: {self.model.intercept_}"
 
 
 class LinearRegressor(Learner):
@@ -57,9 +66,9 @@ class LinearRegressor(Learner):
             LinearRegression: The fitted linear regressor.
         """
         self.learner.fit(data[inputs], data[target])
-        return LinearModel(self.learner)
+        return LinearModel(self.learner), self.learner.score(data[inputs], data[target]) #abs(self.learner.predict(data[inputs][-1]) - data[target][-1])
     
-    def refineFlowFunction(self, data, inputs, target):
+    def refineFlowFunction(self, data, inputs, target) -> LinearModel:
         """
         Refine the flow function from the given inputs and target variable.
 

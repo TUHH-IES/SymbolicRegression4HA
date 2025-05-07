@@ -1,0 +1,15 @@
+file: "data/linear/trapezoid_data.csv"
+features:
+  - x
+
+start_width: 2
+step_width: 1
+target_var: y
+mode_var: m
+threshold: 0.01
+
+segmentation:
+  criterion: 
+    name: "increase"
+    kwargs:
+      saturation: 1.0

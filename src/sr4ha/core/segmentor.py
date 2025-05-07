@@ -46,15 +46,16 @@ class Segmentor:
             segmented_results (segmented_data.SegmentedData): The segmented data
 
         """
-        window_size = self.start_width - self.step_width - self.step_width
-        error = 0.0
-        while self.criterion(error) and window_size < len(data_frame):
+        window_size = self.start_width - self.step_width
+        fit = 0.0
+        fit_prev = 0.0
+        while self.criterion(fit, fit_prev) and window_size < len(data_frame):
             window_size += self.step_width
             segment = data_frame.slice(0, window_size)
-
-            function = learner.learnFlowFunction(segment, self.inputs, self.target)
+            fit_prev = fit
+            function, fit = learner.learnFlowFunction(segment, self.inputs, self.target)
         
-        return function, window_size
+        return function
 
 def buildRemainingTraces(
         traces: list[pl.DataFrame],
@@ -71,11 +72,19 @@ def buildRemainingTraces(
         list[DataFrame]: The list of remaining traces.
     """
     remaining_traces = []
-    for trace in traces:
+    for trace, segments in zip(traces, accurate_segments):
         remaining_trace = trace
-        for segment in accurate_segments:
-            start, end = segment
-            remaining_trace = remaining_trace.slice(0, start).append(remaining_trace.slice(end + 1))
+        removed_size = 0
+        for start, end in segments:
+            start = start - removed_size
+            end = end - removed_size
+            removed_size += end + 1
+            # Add the part before start as a new trace
+            new_segment = remaining_trace.slice(0, start)
+            remaining_traces.append(new_segment)
+            
+            # Update the remaining trace to the part after end for further iteration
+            remaining_trace = remaining_trace.slice(end + 1)
         remaining_traces.append(remaining_trace)
     # Remove empty traces
     remaining_traces = [trace for trace in remaining_traces if len(trace) > 0]
