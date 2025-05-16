@@ -8,8 +8,8 @@ import time
 
 import core.segmentor
 
-from learner.learner import Model, getAccurateSegments
-from learner.linear_regressor import LinearRegressor
+from learner.learner import Learner, Model, getAccurateSegments
+import learner as learnermodule
 
 def predictFromModes(modes: list[Model], data_frame : pl.DataFrame, features, target_var, mode_var):
     """
@@ -58,7 +58,8 @@ def main(path):
     while len(trajectory) > 0:
         # Segmentation
         segmentor = core.segmentor.Segmentor(config)
-        learner = LinearRegressor()
+        learner: Learner = getattr(learnermodule, config["learner"])(config["learner-kwargs"])
+        #print(trajectory)
         model = segmentor.segment(trajectory, learner)
 
         accurate_segments, mode_data = getAccurateSegments(traces, model, config["features"], config["target_var"], config["threshold"])

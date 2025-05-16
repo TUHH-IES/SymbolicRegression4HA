@@ -1,7 +1,43 @@
 
 from pysr import PySRRegressor
-from learner.learner import Learner
+import sympy
+from learner.learner import Learner, Model
 
+class SymbolicModel(Model):
+    """
+    Symbolic Model class for symbolic regression tasks.
+    Inherits from the Model class.
+    """
+
+    def __init__(self, model: PySRRegressor):
+        """
+        Initialize the SymbolicModel with given parameters.
+
+        Args:
+            model (PySRRegressor): The symbolic regression model.
+        """
+        self.model: PySRRegressor = model
+
+    def predict(self, data):
+        """
+        Predict the output for the given input data.
+
+        Args:
+            data (DataFrame): The input data.
+
+        Returns:
+            DataFrame: The predicted output.
+        """
+        return self.model.predict(data)
+
+    def to_string(self):
+        """
+        Convert the model to a string representation.
+
+        Returns:
+            str: The string representation of the model.
+        """
+        return sympy.sstr(self.model.sympy())
 
 class SymbolicRegressor(Learner):
     """
@@ -9,7 +45,7 @@ class SymbolicRegressor(Learner):
     Inherits from the Learner class.
     """
 
-    def __init__(self, config):
+    def __init__(self, kwargs):
         """
         Initialize the SymbolicRegressor with given parameters.
 
@@ -17,15 +53,8 @@ class SymbolicRegressor(Learner):
             **kwargs: Additional parameters for the symbolic regressor.
         """
         super().__init__()
-        self.step_iterations = config["step_iterations"]
-        self.init_iterations = config["segmentation"]["kwargs"]["niterations"]
-        if "selection" not in config:
-            config["selection"] = "loss"
-        self.selection = config["selection"]
-        self.learner = PySRRegressor(**config["segmentation"].get("kwargs", {}))
-        self.learner.feature_names = config["features"]
-        self.file_prefix = config["file_prefix"]
-        self.learner.warm_start = False
+        self.learner = PySRRegressor(**kwargs)
+        self.learner.warm_start = True
 
     def learnFlowFunction(self, data, inputs, target):
         """
@@ -40,7 +69,11 @@ class SymbolicRegressor(Learner):
             PySRRegressor: The fitted symbolic regressor.
         """
         self.learner.fit(data[inputs], data[target])
-        return self.learner
+        predictions = self.learner.predict(data[inputs])
+        #mse = mean_squared_error(data[target], predictions)
+        max_error = (abs(data[target] - predictions)).max()
+        self.learner.warm_start = True
+        return SymbolicModel(self.learner), max_error
     
     def refineFlowFunction(self, data, inputs, target):
         """
@@ -54,5 +87,6 @@ class SymbolicRegressor(Learner):
         Returns:
             PySRRegressor: The fitted symbolic regressor.
         """
+        self.learner.warm_start = False
         self.learner.fit(data[inputs], data[target])
-        return self.learner
+        return SymbolicModel(self.learner)

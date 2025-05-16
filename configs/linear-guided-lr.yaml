@@ -7,6 +7,9 @@ step_width: 1
 target_var: y
 mode_var: m
 threshold: 0.01
+learner: "LinearRegressor"
+
+learner-kwargs: {}
 
 segmentation:
   criterion: 

@@ -1,0 +1,30 @@
+file: "data/linear/trapezoid_data.csv"
+features:
+  - x
+
+start_width: 5
+step_width: 1
+target_var: y
+mode_var: m
+threshold: 0.01
+learner: "SymbolicRegressor"
+
+learner-kwargs:
+  niterations: 10
+  verbosity: 0
+  parsimony: 5
+  random_state: 42
+  deterministic: true
+  procs: 0
+  multithreading: false
+  binary_operators:
+    - "-"
+    - "+"
+    - "*"
+  unary_operators:
+
+segmentation:
+  criterion: 
+    name: "threshold_error"
+    kwargs:
+      threshold: 0.01
