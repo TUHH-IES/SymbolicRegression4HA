@@ -1,5 +1,5 @@
 import numpy as np
-import pandas as pd
+import polars as pl
 
 import matplotlib.pyplot as plt
 
@@ -29,7 +29,8 @@ for i in range(num_iterations):
     m[falling] = 2
 
 # Save data to CSV
-data = pd.DataFrame({'x': x, 'y': y, 'm': m})
+data = pl.DataFrame({'x': x, 'y': y, 'm': m})
+data['t'] = np.arange(len(data))
 data.to_csv('trapezoid_data.csv', index=False)
 
 # Plot the data
@@ -41,3 +42,6 @@ plt.ylabel('t')
 plt.grid()
 plt.legend()
 plt.show()
+
+data['t', 'x'].write_csv('simple-linear-x.csv', include_header=False)
+data['t', 'y'].write_csv('simple-linear-y.csv', include_header=False)

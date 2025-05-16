@@ -2,7 +2,7 @@ file: "data/linear/trapezoid_data.csv"
 features:
   - x
 
-start_width: 2
+start_width: 5
 step_width: 1
 target_var: y
 mode_var: m
@@ -10,6 +10,6 @@ threshold: 0.01
 
 segmentation:
   criterion: 
-    name: "increase"
+    name: "threshold_error"
     kwargs:
-      saturation: 1.0
+      threshold: 0.01

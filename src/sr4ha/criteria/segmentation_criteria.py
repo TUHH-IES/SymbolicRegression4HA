@@ -4,3 +4,6 @@ def increase(score, score_prev, saturation = 1e-10, factor = 1):
 
 def decrease(error, error_prev, saturation = 1e-10, factor = 1):
     return error < saturation or factor * error <= error_prev
+
+def threshold_error(error, error_prev, threshold):
+    return error < threshold

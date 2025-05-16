@@ -1,6 +1,7 @@
 from learner.learner import Learner, Model
 
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
 
 class LinearModel(Model):
     """
@@ -66,7 +67,10 @@ class LinearRegressor(Learner):
             LinearRegression: The fitted linear regressor.
         """
         self.learner.fit(data[inputs], data[target])
-        return LinearModel(self.learner), self.learner.score(data[inputs], data[target]) #abs(self.learner.predict(data[inputs][-1]) - data[target][-1])
+        predictions = self.learner.predict(data[inputs])
+        #mse = mean_squared_error(data[target], predictions)
+        max_error = (abs(data[target] - predictions)).max()
+        return LinearModel(self.learner), max_error
     
     def refineFlowFunction(self, data, inputs, target) -> LinearModel:
         """

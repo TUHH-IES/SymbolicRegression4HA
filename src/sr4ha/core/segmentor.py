@@ -49,11 +49,15 @@ class Segmentor:
         window_size = self.start_width - self.step_width
         fit = 0.0
         fit_prev = 0.0
+        if len(data_frame) < self.start_width:
+            function, fit = learner.learnFlowFunction(data_frame, self.inputs, self.target)
+            return function
         while self.criterion(fit, fit_prev) and window_size < len(data_frame):
             window_size += self.step_width
             segment = data_frame.slice(0, window_size)
             fit_prev = fit
             function, fit = learner.learnFlowFunction(segment, self.inputs, self.target)
+            print(window_size, fit)
         
         return function
 
