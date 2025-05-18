@@ -1,6 +1,5 @@
 from functools import partial
 import polars as pl
-import core.processed_data as processed_data
 
 import criteria.segmentation_criteria as segmentation_criteria
 from learner.learner import Learner

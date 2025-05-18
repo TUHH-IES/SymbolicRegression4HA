@@ -1,0 +1,19 @@
+file: "data/bouncingball/shifted-data.csv"
+features:
+  - x1
+  - x2
+
+start_width: 10
+step_width: 10
+target_var: x0
+mode_var: m
+threshold: 0.5
+learner: "LinearRegressor"
+
+learner-kwargs: {}
+
+segmentation:
+  criterion: 
+    name: "threshold_error"
+    kwargs:
+      threshold: 0.5

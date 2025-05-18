@@ -47,6 +47,7 @@ class LinearRegressor(Learner):
 
     def __init__(
         self,
+        kwargs=None,
     ):
         """
         Initialize the LinearRegressor with given parameters.

@@ -88,12 +88,12 @@ def main(path):
     print(f"Mean Squared Error: {mse}")
 
     learn_time = end_time - start_time
-    with open("metrics.txt", "w") as f:
+    with open(config["target_var"] + "-" + config["learner"] + "-" + "metrics.txt", "w") as f:
         f.write(f"Mean Squared Error: {mse}\n")
         f.write(f"Learning Time (s): {learn_time}\n")
     
-    predictions['t', config["target_var"]].write_csv('simple-linear-pred.csv', include_header=False)
-    data_frame['t', config["target_var"]].write_csv('simple-linear-gt.csv', include_header=False)
+    predictions['t', config["target_var"]].write_csv(config["target_var"] + "-" + config["learner"] + "-" + 'pred.csv', include_header=False)
+    data_frame['t', config["target_var"]].write_csv(config["target_var"] + "-" + config["learner"] + "-" + 'gt.csv', include_header=False)
 
     # Plot the data
     plt.figure(figsize=(10, 6))
