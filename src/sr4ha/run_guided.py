@@ -25,18 +25,20 @@ def predictFromModes(modes: list[Model], data_frame : pl.DataFrame, features, ta
     Returns:
         DataFrame: The predicted data frame with the target variable.
     """
-    predictions = []
+    predictions = pl.DataFrame()
+    target_vars = target_var if isinstance(target_var, list) else [target_var]
     for row in data_frame.iter_rows(named=True):
         mode_index = int(row[mode_var])
         if mode_index < len(modes):
             mode = modes[mode_index]
             row_df = pl.DataFrame([row])
             prediction = mode.predict(row_df[features])
-            predictions.append(prediction[0])
+            predictions = predictions.vstack(pl.DataFrame(prediction, schema=target_vars))
         else:
-            predictions.append(None)  # Handle cases where mode index is invalid
-
-    return pl.DataFrame({target_var: predictions, 't': data_frame['t']})
+            for var in target_var:
+                predictions[var].append(None)
+    predictions = predictions.with_columns(data_frame['t'])
+    return predictions
 
 def main(path):
     modes = []
@@ -82,18 +84,24 @@ def main(path):
     predictions = predictFromModes(modes, data_frame, config["features"], config["target_var"], config["mode_var"])
     target = data_frame[config["target_var"]]
 
-    predictions_array = np.array(predictions[config["target_var"]])
-    target_array = np.array(target)
-    mse = np.mean((predictions_array - target_array) ** 2)
-    print(f"Mean Squared Error: {mse}")
+    target_vars = config["target_var"] if isinstance(config["target_var"], list) else [config["target_var"]]
+
+    mse_per_column = {}
+    for var in target_vars:
+        pred_col = np.array(predictions[var])
+        target_col = np.array(target[var])
+        mse_per_column[var] = np.mean((pred_col - target_col) ** 2)
+        print(f"Mean Squared Error for {var}: {mse_per_column[var]}")
 
     learn_time = end_time - start_time
-    with open(config["target_var"] + "-" + config["learner"] + "-" + "metrics.txt", "w") as f:
-        f.write(f"Mean Squared Error: {mse}\n")
+    with open(config["target_var"][0] + "-" + config["learner"] + "-" + "metrics.txt", "w") as f:
+        f.write(f"Mean Squared Error: {mse_per_column}\n")
         f.write(f"Learning Time (s): {learn_time}\n")
     
-    predictions['t', config["target_var"]].write_csv(config["target_var"] + "-" + config["learner"] + "-" + 'pred.csv', include_header=False)
-    data_frame['t', config["target_var"]].write_csv(config["target_var"] + "-" + config["learner"] + "-" + 'gt.csv', include_header=False)
+    predictions['t', config["target_var"][0]].write_csv(config["target_var"][0] + "-" + config["learner"] + "-" + 'pred.csv', include_header=False)
+    data_frame['t', config["target_var"][0]].write_csv(config["target_var"][0] + "-" + config["learner"] + "-" + 'gt.csv', include_header=False)
+    #predictions['t', config["target_var"][1]].write_csv(config["target_var"][1] + "-" + config["learner"] + "-" + 'pred.csv', include_header=False)
+    #data_frame['t', config["target_var"][1]].write_csv(config["target_var"][1] + "-" + config["learner"] + "-" + 'gt.csv', include_header=False)
 
     # Plot the data
     plt.figure(figsize=(10, 6))

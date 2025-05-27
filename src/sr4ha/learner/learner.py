@@ -1,6 +1,7 @@
 
 from abc import ABC, abstractmethod
 
+import numpy as np
 from polars import DataFrame, concat
 
 
@@ -72,12 +73,12 @@ def getAccurateSegments(
 
     for trace in traces:
         predictions = model.predict(trace[inputs])
-        errors = (predictions - trace[target]).abs()
+        errors = np.abs(predictions - trace[target])
         local_segments = []
 
         start = None
         for i, error in enumerate(errors):
-            if error < threshold:
+            if np.all(error < threshold):
                 if start is None:
                     start = i  # Start of a new interval
             else:

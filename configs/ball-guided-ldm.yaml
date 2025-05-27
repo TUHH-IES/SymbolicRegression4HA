@@ -1,0 +1,25 @@
+file: "data/bouncingball/data.csv"
+features:
+  - x
+  - v
+
+start_width: 50
+step_width: 50
+target_var:
+  - x
+  - v
+mode_var: m
+threshold: 
+  - 0.5
+  - 40
+learner: "LinearDifferentialLearner"
+
+learner-kwargs: {}
+
+segmentation:
+  criterion: 
+    name: "threshold_vector"
+    kwargs:
+      threshold:
+        - 0.5
+        - 40

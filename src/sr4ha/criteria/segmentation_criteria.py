@@ -7,3 +7,6 @@ def decrease(error, error_prev, saturation = 1e-10, factor = 1):
 
 def threshold_error(error, error_prev, threshold):
     return error < threshold
+
+def threshold_vector(error, error_prev, threshold):
+    return (error < threshold).all()

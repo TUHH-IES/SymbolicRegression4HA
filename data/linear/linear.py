@@ -30,8 +30,8 @@ for i in range(num_iterations):
 
 # Save data to CSV
 data = pl.DataFrame({'x': x, 'y': y, 'm': m})
-data['t'] = np.arange(len(data))
-data.to_csv('trapezoid_data.csv', index=False)
+data = data.with_columns(pl.Series('t', np.arange(len(data))))
+data.write_csv('trapezoid_data.csv')
 
 # Plot the data
 plt.figure(figsize=(10, 6))
@@ -43,5 +43,6 @@ plt.grid()
 plt.legend()
 plt.show()
 
+data = data.with_columns((pl.col('y') * 5).alias('y'))
 data['t', 'x'].write_csv('simple-linear-x.csv', include_header=False)
 data['t', 'y'].write_csv('simple-linear-y.csv', include_header=False)
