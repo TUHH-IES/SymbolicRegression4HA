@@ -69,7 +69,8 @@ class LinearRegressor(Learner):
         self.learner.fit(data[inputs], data[target])
         predictions = self.learner.predict(data[inputs])
         #mse = mean_squared_error(data[target], predictions)
-        max_error = (abs(data[target] - predictions)).max()
+        print(data[target[0]].shape, predictions.shape)
+        max_error = (abs(data[target[0]] - predictions[0])).max()
         return LinearModel(self.learner), max_error
     
     def refineFlowFunction(self, data, inputs, target) -> LinearModel:

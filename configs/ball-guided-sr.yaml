@@ -5,7 +5,8 @@ features:
 
 start_width: 10
 step_width: 10
-target_var: x0
+target_var: 
+  - x0
 mode_var: m
 threshold: 0.5
 learner: "SymbolicRegressor"

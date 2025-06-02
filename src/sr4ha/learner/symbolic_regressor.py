@@ -1,7 +1,8 @@
-
 from pysr import PySRRegressor
+import polars as pl
 import sympy
 from learner.learner import Learner, Model
+
 
 class SymbolicModel(Model):
     """
@@ -28,16 +29,20 @@ class SymbolicModel(Model):
         Returns:
             DataFrame: The predicted output.
         """
-        return self.model.predict(data)
+        return pl.DataFrame(self.model.predict(data))
 
     def to_string(self):
         """
-        Convert the model to a string representation.
+        Convert the model to a string representation, including the simplified form.
 
         Returns:
-            str: The string representation of the model.
+            str: The original and simplified string representations of the model.
         """
-        return sympy.sstr(self.model.sympy())
+        expr = self.model.sympy()
+        original_str = sympy.sstr(expr)
+        simplified_str = sympy.sstr(sympy.simplify(expr))
+        return f"Original: {original_str}\nSimplified: {simplified_str}"
+
 
 class SymbolicRegressor(Learner):
     """
@@ -70,11 +75,11 @@ class SymbolicRegressor(Learner):
         """
         self.learner.fit(data[inputs], data[target])
         predictions = self.learner.predict(data[inputs])
-        #mse = mean_squared_error(data[target], predictions)
-        max_error = (abs(data[target] - predictions)).max()
+        # mse = mean_squared_error(data[target], predictions)
+        max_error = (abs(data[target[0]] - predictions)).max()
         self.learner.warm_start = True
         return SymbolicModel(self.learner), max_error
-    
+
     def refineFlowFunction(self, data, inputs, target):
         """
         Refine the flow function from the given inputs and target variable.

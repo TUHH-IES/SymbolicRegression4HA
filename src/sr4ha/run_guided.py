@@ -100,6 +100,12 @@ def main(path):
     
     predictions['t', config["target_var"][0]].write_csv(config["target_var"][0] + "-" + config["learner"] + "-" + 'pred.csv', include_header=False)
     data_frame['t', config["target_var"][0]].write_csv(config["target_var"][0] + "-" + config["learner"] + "-" + 'gt.csv', include_header=False)
+    predictions = predictions.with_columns(
+        (predictions[config["target_var"][0]] - data_frame[config["target_var"][0]]).abs().alias("error")
+    )
+    predictions[['t', "error"]].write_csv(
+        f"{config['target_var'][0]}-{config['learner']}-error.csv", include_header=True
+    )
     #predictions['t', config["target_var"][1]].write_csv(config["target_var"][1] + "-" + config["learner"] + "-" + 'pred.csv', include_header=False)
     #data_frame['t', config["target_var"][1]].write_csv(config["target_var"][1] + "-" + config["learner"] + "-" + 'gt.csv', include_header=False)
 
