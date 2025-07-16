@@ -2,6 +2,7 @@ file: "data/twotank/data_withsubst.csv"
 eval: "data/twotank/eval_twotank_withsubst.csv"
 gt-learn: "results/two_tank/gt_switches.csv"
 gt-eval: "results/two_tank/gt_eval.csv"
+gt-groups: 3
 features:
   - mQp
   - y1

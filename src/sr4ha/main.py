@@ -53,6 +53,11 @@ def main(path):
     print("Time for grouping:", endtime - starttime)
     with open("global_results.txt", "a") as file:
         file.write("Grouping Time: " + str(endtime - starttime) + "\n")
+
+    group_deviation = grouped_data.get_mean_loss() * (1 + abs(len(grouped_data._groups) - config["gt-groups"]))
+    with open("global_results.txt", "a") as file:
+        file.write("Grouping Deviation: " + str(group_deviation) + "\n")
+    print("Grouping Deviation:", group_deviation)
     grouped_data.visualize()
 
     # Model Construction

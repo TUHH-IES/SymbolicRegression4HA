@@ -2,6 +2,7 @@ file: "data/converter/learn_data_converter_omega400e3_beta40e3_Q10_theta60.csv"
 eval: "data/converter/eval_data_converter_omega400e3_beta40e3_Q10_theta60.csv"
 gt-learn: "results/converter/gt_switches.csv"
 gt-eval: "results/converter/gt_eval.csv"
+gt-groups: 2
 features:
   - t
   - w1

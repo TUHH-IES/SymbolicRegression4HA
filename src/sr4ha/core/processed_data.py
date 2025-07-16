@@ -9,10 +9,8 @@ def get_transition_deviation(switches, file, length_penalty=100):
         reader = csv.reader(file)
         ground_truth_switches = [float(row[0]) for row in reader]
 
-    print(ground_truth_switches)
-    print(switches)
     deviation = 0
-    deviation += length_penalty*abs(len(ground_truth_switches) - len(switches))
+    deviation += length_penalty*abs(len(ground_truth_switches) - len(switches)) / len(switches)
     matching = [None] * len(ground_truth_switches)
     for i in range(len(ground_truth_switches)):
         matching[i] = min(range(len(switches)), key=lambda x: abs(switches[x] - ground_truth_switches[i]))
@@ -25,8 +23,6 @@ def get_transition_deviation(switches, file, length_penalty=100):
             else:
                 matching[index] = None
                 
-
-    print(matching)
     for i in range(len(matching)):
         if matching[i] is not None:
             deviation += abs(switches[matching[i]] - ground_truth_switches[i]) / len(switches)
