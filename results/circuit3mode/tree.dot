@@ -1,0 +1,37 @@
+digraph Tree {
+node [shape=box, fontname="helvetica"] ;
+edge [fontname="helvetica"] ;
+0 [label="U3 <= 9.991\ngini = 0.667\nsamples = 6009\nvalue = [2003, 2004, 2002]"] ;
+1 [label="U1 <= 10.001\ngini = 0.5\nsamples = 4000\nvalue = [0, 2000, 2000]"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label="gini = 0.0\nsamples = 1996\nvalue = [0, 1996, 0]"] ;
+1 -> 2 ;
+3 [label="U3 <= 4.989\ngini = 0.004\nsamples = 2004\nvalue = [0.0, 4.0, 2000.0]"] ;
+1 -> 3 ;
+4 [label="gini = 0.0\nsamples = 1996\nvalue = [0, 0, 1996]"] ;
+3 -> 4 ;
+5 [label="U1 <= 10.006\ngini = 0.5\nsamples = 8\nvalue = [0, 4, 4]"] ;
+3 -> 5 ;
+6 [label="gini = 0.5\nsamples = 4\nvalue = [0, 2, 2]"] ;
+5 -> 6 ;
+7 [label="gini = 0.5\nsamples = 4\nvalue = [0, 2, 2]"] ;
+5 -> 7 ;
+8 [label="U3 <= 10.001\ngini = 0.006\nsamples = 2009\nvalue = [2003, 4, 2]"] ;
+0 -> 8 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+9 [label="U3 <= 9.996\ngini = 0.5\nsamples = 8\nvalue = [4, 4, 0]"] ;
+8 -> 9 ;
+10 [label="gini = 0.5\nsamples = 4\nvalue = [2, 2, 0]"] ;
+9 -> 10 ;
+11 [label="gini = 0.5\nsamples = 4\nvalue = [2, 2, 0]"] ;
+9 -> 11 ;
+12 [label="U3 <= 14.992\ngini = 0.002\nsamples = 2001\nvalue = [1999, 0, 2]"] ;
+8 -> 12 ;
+13 [label="gini = 0.0\nsamples = 1996\nvalue = [1996, 0, 0]"] ;
+12 -> 13 ;
+14 [label="U1 <= 0.003\ngini = 0.48\nsamples = 5\nvalue = [3, 0, 2]"] ;
+12 -> 14 ;
+15 [label="gini = 0.5\nsamples = 2\nvalue = [1, 0, 1]"] ;
+14 -> 15 ;
+16 [label="gini = 0.444\nsamples = 3\nvalue = [2, 0, 1]"] ;
+14 -> 16 ;
+}

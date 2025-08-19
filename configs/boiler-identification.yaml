@@ -1,34 +1,29 @@
-file: "data/electricCircuit1mode/circuit_data.csv"
-eval: "data/electricCircuit1mode/circuit_data.csv"
-gt-learn: "results/circuit1mode/gt_switches.csv"
-gt-eval: "results/circuit1mode/gt_switches.csv"
+file: "data/boiler/boiler_data.csv"
+eval: "data/boiler/boiler_eval_data.csv"
+gt-learn: "data/boiler/gt_switches.csv"
+gt-eval: "data/boiler/gt_switches_eval.csv"
 features:
-  - U1
-  - U2
-  - U3
-  - R
+  - x
 dt-features:
-  - U1
-  - U2
-  - U3
-  - R
+  - x
 
-start_width: 200
-step_width: 100
+start_width: 30
+step_width: 1
+target_var: xdot
 step_iterations: 5
-file_prefix: "circuit1"
+file_prefix: "boiler"
 hist_length: 5
-gt-groups: 1
+gt-groups: 2
 
 segmentation:
   criterion: 
     name: "decrease"
     kwargs:
-      saturation: 1e-7
+      saturation: 1e-4
   kwargs:
     niterations: 20
     verbosity: 0
-    complexity_of_constants: 10
+    complexity_of_constants: 1
     parsimony: 1e-6
     random_state: 42
     deterministic: true
@@ -38,28 +33,24 @@ segmentation:
       - "-"
       - "+"
       - "*"
-      - "/"
     unary_operators:
 
 grouping:
   criterion:
     name: "preserving_group_loss"
     kwargs:
-      factor: 1.5
+      factor: 1.6
   kwargs:
-    niterations: 50
+    niterations: 20
     verbosity: 0
     random_state: 42
     deterministic: true
     procs: 0
     multithreading: false
-    complexity_of_constants: 10
-    parsimony: 1e-3
+    complexity_of_constants: 1
+    parsimony: 1e-6
     binary_operators:
       - "-"
       - "+"
       - "*"
-      - "/"
     unary_operators:
-
-target_var: 'I4'

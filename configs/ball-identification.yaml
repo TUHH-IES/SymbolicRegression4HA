@@ -1,22 +1,19 @@
-file: "data/electricCircuit1mode/circuit_data.csv"
-eval: "data/electricCircuit1mode/circuit_data.csv"
-gt-learn: "results/circuit1mode/gt_switches.csv"
-gt-eval: "results/circuit1mode/gt_switches.csv"
+file: "data/bouncingball/shifted-data.csv"
+eval: "data/bouncingball/eval_data.csv"
+gt-learn: "results/ball/gt_switches.csv"
+gt-eval: "results/ball/gt_switches.csv"
 features:
-  - U1
-  - U2
-  - U3
-  - R
+  - x1
+  - x2
 dt-features:
-  - U1
-  - U2
-  - U3
-  - R
+  - x1
+  - x2
 
-start_width: 200
-step_width: 100
+start_width: 50
+step_width: 50
+target_var: x0
 step_iterations: 5
-file_prefix: "circuit1"
+file_prefix: "ball"
 hist_length: 5
 gt-groups: 1
 
@@ -24,7 +21,7 @@ segmentation:
   criterion: 
     name: "decrease"
     kwargs:
-      saturation: 1e-7
+      saturation: 1e-4
   kwargs:
     niterations: 20
     verbosity: 0
@@ -47,19 +44,17 @@ grouping:
     kwargs:
       factor: 1.5
   kwargs:
-    niterations: 50
+    niterations: 20
     verbosity: 0
     random_state: 42
     deterministic: true
     procs: 0
     multithreading: false
     complexity_of_constants: 10
-    parsimony: 1e-3
+    parsimony: 1e-6
     binary_operators:
       - "-"
       - "+"
       - "*"
       - "/"
     unary_operators:
-
-target_var: 'I4'

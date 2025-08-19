@@ -1,5 +1,13 @@
 file: "data/electricCircuit3mode/circuit_data.csv"
+eval: "data/electricCircuit3mode/circuit_data.csv"
+gt-learn: "results/circuit3mode/gt_switches.csv"
+gt-eval: "results/circuit3mode/gt_switches.csv"
 features:
+  - U1
+  - U2
+  - U3
+  - R
+dt-features:
   - U1
   - U2
   - U3
@@ -10,6 +18,7 @@ step_width: 100
 step_iterations: 5
 file_prefix: "circuit1"
 hist_length: 5
+gt-groups: 3
 
 segmentation:
   criterion: 

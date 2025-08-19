@@ -52,7 +52,7 @@ class ModelExtractor:
         y = data["group_id"]
         clf.fit(X, y)
         tree.export_graphviz(clf, out_file="tree.dot", feature_names=dt_features)
-        tree.plot_tree(clf, feature_names=dt_features)
+        #tree.plot_tree(clf, feature_names=dt_features)
         return HybridDecisionModel(clf, grouped_results)
 
     def evaluateDecisionTreeModel(self, model, testData, visualize: bool = True):
@@ -78,7 +78,7 @@ class ModelExtractor:
         # Use flow functions and predictedModes to predict target value
         prediction = pl.DataFrame().with_columns(
             pl.Series(
-                [flows[group_id](*testData[self.features][i])[0]
+                [flows[group_id](*testData[self.features][i])#[0]
                  for i, group_id in enumerate(predictedModes)]
             ).alias(self.target_var))
         error = metrics.mean_squared_error(testData[self.target_var], prediction[self.target_var])

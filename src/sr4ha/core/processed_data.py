@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import sympy
 import csv
 
-def get_transition_deviation(switches, file, length_penalty=100):
+def get_transition_deviation(switches, file, length_penalty=10):
     with open(file, 'r') as file:
         reader = csv.reader(file)
         ground_truth_switches = [float(row[0]) for row in reader]

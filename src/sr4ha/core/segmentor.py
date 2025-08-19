@@ -123,6 +123,7 @@ class Segmentor:
             window[0] = window[1] - self.step_width
             window[1] = min(window[0] + self.start_width - self.step_width, len(data_frame))
             self.learner.niterations = self.init_iterations
+            print(window)
 
         segmented_results = processed_data.SegmentedData(data_frame, segments, switches, self.target_var)
         
